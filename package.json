@@ -1,0 +1,31 @@
+{
+  "name": "kronoswebgpu",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/copy-ort.mjs && vite",
+    "build": "node scripts/copy-ort.mjs && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@webgpu/types": "^0.1.74",
+    "onnxruntime-node": "^1.31.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "onnxruntime-web": "^1.31.1"
+  },
+  "description": "Predicción de velas con Kronos y Chronos-Bolt ejecutándose en el navegador (WebGPU / WASM).",
+  "license": "MIT",
+  "author": "Amin Tahtah Toumi",
+  "homepage": "https://kronos.aminox.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amintikk/kronos-webgpu.git"
+  }
+}

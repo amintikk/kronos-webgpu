@@ -1,0 +1,5 @@
+node_modules/
+dist/
+public/ort/
+*.onnx
+__pycache__/

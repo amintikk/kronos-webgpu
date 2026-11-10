@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacidad y cookies · Kronos WebGPU</title>
+    <meta name="description" content="Qué datos se tratan al usar Kronos WebGPU: sin cuentas, sin cookies y sin analítica." />
+    <link rel="canonical" href="https://kronos.aminox.dev/privacidad/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      document.documentElement.classList.add('js'); // content stays visible if scripts fail
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Privacidad y cookies</h1>
+        <p class="updated">Última actualización: 10 de noviembre de 2026</p>
+
+        <p>Resumen: <strong>no hay cuentas, formularios, cookies ni analítica.</strong> El modelo se ejecuta en tu equipo y las velas las pide tu navegador directamente a la bolsa. El único dato personal que llega a nuestros sistemas es el técnico de cualquier visita a una web, como tu dirección IP.</p>
+        <h2>Responsable del tratamiento</h2>
+        <div class="card">
+          <p><strong>Titular:</strong> Amin Tahtah Toumi</p>
+          <p><strong>Correo electrónico:</strong> <a href="mailto:amintahtahtoumi@gmail.com">amintahtahtoumi@gmail.com</a></p>
+          <p><strong>Sitio web:</strong> kronos.aminox.dev</p>
+        </div>
+        <h2>Datos que se tratan y para qué</h2>
+        <div class="card table-card">
+          <table>
+            <thead><tr><th>Dato</th><th>Finalidad</th><th>Base legal</th><th>Conservación</th></tr></thead>
+            <tbody>
+              <tr><td>Dirección IP, fecha, página pedida y navegador (registros del servidor)</td><td>Servir la web, seguridad y resolución de fallos</td><td>Interés legítimo (art. 6.1.f RGPD)</td><td>Hasta unas 5 semanas; se borran por rotación automática</td></tr>
+              <tr><td>Correo que nos envíes</td><td>Responder a tu consulta</td><td>Tu consentimiento al escribirnos</td><td>El tiempo necesario para atenderla</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>No se elaboran perfiles, no se toman decisiones automatizadas sobre ti y no se ceden datos a terceros salvo obligación legal.</p>
+        <h2>Lo que no llega a nuestros sistemas</h2>
+        <ul>
+          <li><strong>Tus consultas y resultados.</strong> El par, el intervalo, la configuración y las predicciones se calculan y se quedan en tu navegador.</li>
+          <li><strong>Tus archivos CSV.</strong> Se leen en tu equipo y no se suben a ningún sitio.</li>
+          <li><strong>Analítica.</strong> No usamos Google Analytics ni herramientas parecidas. La tipografía se sirve desde este mismo dominio, sin Google Fonts.</li>
+        </ul>
+        <h2>Proveedores que intervienen</h2>
+        <ul>
+          <li><strong>Oracle Cloud</strong> (servidor en Madrid, UE): aloja los archivos de la web y los modelos.</li>
+          <li><strong>Cloudflare</strong> (red de entrega y seguridad): recibe tu dirección IP al visitar la web. Puede tratarla fuera del Espacio Económico Europeo con las garantías del Marco de Privacidad de Datos UE-EE. UU. y las cláusulas contractuales tipo. <a href="https://www.cloudflare.com/es-es/privacypolicy/" target="_blank" rel="noopener">Política de Cloudflare</a>.</li>
+        </ul>
+        <h2>Conexiones que hace tu navegador al usar la app</h2>
+        <p>
+          Para mostrar las velas, tu navegador se conecta directamente a la bolsa que elijas (Binance, Bybit, OKX o Coinbase). Esa bolsa recibe tu dirección IP y el par que consultas, y los
+          trata según su propia política de privacidad; no actúa por encargo nuestro. Si no quieres que ninguna bolsa reciba estas peticiones, puedes cargar tus datos desde un CSV.
+        </p>
+        <h2>Cookies y almacenamiento local</h2>
+        <p>Este sitio <strong>no instala cookies</strong>. Sí guarda en tu navegador, sin enviarlo a ningún servidor:</p>
+        <ul>
+          <li><strong>Preferencias</strong> (localStorage): tema, par, modelo, ajustes y secciones abiertas o cerradas.</li>
+          <li><strong>Modelos descargados</strong> (Cache Storage), para no tener que descargarlos cada vez.</li>
+        </ul>
+        <p>
+          Este almacenamiento es necesario para prestar el servicio que pides, por lo que no requiere consentimiento (art. 22.2 LSSI). Puedes borrarlo cuando quieras desde la pestaña «Modelos» de la
+          app o desde los ajustes de tu navegador (datos del sitio kronos.aminox.dev).
+        </p>
+        <h2>Tus derechos</h2>
+        <p>
+          Puedes pedir el acceso, la rectificación, la supresión, la oposición, la limitación y la portabilidad de tus datos escribiendo al correo de arriba. Si crees que no se han respetado tus
+          derechos, puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de Protección de Datos</a>. Ten en cuenta que, como no hay cuentas,
+          normalmente no podremos relacionar una dirección IP de los registros con una persona.
+        </p>
+        <h2>Cambios</h2>
+        <p>Si esta política cambia, se publicará aquí con su nueva fecha. Si en el futuro se añadiera analítica o cookies no necesarias, se pedirá tu consentimiento antes.</p>
+      </div>
+    </main>
+    <!--#footer-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

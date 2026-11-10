@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Términos de uso · Kronos WebGPU</title>
+    <meta name="description" content="Condiciones de uso de la herramienta de predicción Kronos WebGPU." />
+    <link rel="canonical" href="https://kronos.aminox.dev/terminos/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      document.documentElement.classList.add('js'); // content stays visible if scripts fail
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Términos de uso</h1>
+        <p class="updated">Última actualización: 10 de noviembre de 2026</p>
+
+        <p>Al usar Kronos WebGPU aceptas estas condiciones. Si no estás de acuerdo, no uses la herramienta.</p>
+        <h2>Qué es el servicio</h2>
+        <p>Una herramienta gratuita y experimental que descarga modelos de predicción de series temporales y los ejecuta en tu navegador sobre datos de mercado públicos o sobre archivos que tú cargas.</p>
+        <h2>Sin asesoramiento financiero</h2>
+        <p>
+          Las predicciones son estimaciones estadísticas de modelos de aprendizaje automático. <strong>Pueden ser erróneas y no garantizan resultados futuros.</strong> No son recomendaciones de
+          inversión. Operar con criptomonedas u otros activos conlleva un riesgo alto de perder dinero; cualquier decisión que tomes es solo tuya y bajo tu responsabilidad.
+        </p>
+        <h2>Sin garantías</h2>
+        <p>
+          El servicio se ofrece «tal cual», sin garantías de ningún tipo: puede contener errores, cambiar o dejar de estar disponible sin aviso. Los datos de mercado vienen de terceros y pueden
+          llegar incompletos, con retraso o con errores. Ejecutar los modelos consume memoria, batería y datos de tu dispositivo.
+        </p>
+        <h2>Uso aceptable</h2>
+        <ul>
+          <li>No uses la herramienta para actividades ilegales ni para perjudicar a terceros.</li>
+          <li>No intentes sobrecargar el servidor, por ejemplo descargando los modelos de forma masiva o automatizada.</li>
+          <li>Respeta las condiciones de uso de las bolsas cuyos datos consultas.</li>
+        </ul>
+        <h2>Licencia del código y de los modelos</h2>
+        <p>
+          El código es libre con licencia MIT: puedes usarlo, modificarlo y redistribuirlo según esa licencia. Los modelos y las bibliotecas de terceros mantienen sus propias licencias (ver
+          <a href="/licencias/">licencias</a>).
+        </p>
+        <h2>Limitación de responsabilidad</h2>
+        <p>
+          En la medida que permita la ley, el titular no responde de pérdidas económicas, daños directos o indirectos, ni de la pérdida de datos derivados del uso o la imposibilidad de uso de la
+          herramienta. Nada de esto limita los derechos que te reconozca la normativa de consumo aplicable.
+        </p>
+        <h2>Cambios y ley aplicable</h2>
+        <p>Estos términos pueden actualizarse; la versión vigente es la publicada aquí. Se rigen por la legislación española. Para cualquier consulta escribe a <a href="mailto:amintahtahtoumi@gmail.com">amintahtahtoumi@gmail.com</a>.</p>
+      </div>
+    </main>
+    <!--#footer-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Licencias · Kronos WebGPU</title>
+    <meta name="description" content="Licencia del código de Kronos WebGPU y de los modelos, bibliotecas y tipografías de terceros que usa." />
+    <link rel="canonical" href="https://kronos.aminox.dev/licencias/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      document.documentElement.classList.add('js'); // content stays visible if scripts fail
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Licencias</h1>
+        <p class="updated">Última actualización: 10 de noviembre de 2026</p>
+
+        <p>Kronos WebGPU se apoya en trabajo abierto de otras personas. Esta es la lista de lo que incluye y con qué licencia.</p>
+        <h2>Este proyecto</h2>
+        <p>Código de Kronos WebGPU © 2026 Amin Tahtah Toumi, con <a href="https://github.com/amintikk/kronos-webgpu/blob/main/LICENSE" target="_blank" rel="noopener">licencia MIT</a>. Repositorio: <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">github.com/amintikk/kronos-webgpu</a>.</p>
+        <h2>Modelos y componentes de terceros</h2>
+        <div class="card table-card">
+          <table>
+            <thead><tr><th>Componente</th><th>Autores</th><th>Licencia</th><th>Uso</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://github.com/shiyu-coder/Kronos" target="_blank" rel="noopener">Kronos</a> (código y pesos mini, small, base y tokenizadores)</td><td>Yu Shi, Zongliang Fu, Shuo Chen, Bohan Zhao, Wei Xu, Changshui Zhang y Jian Li</td><td>MIT</td><td>Modelos convertidos a ONNX</td></tr>
+              <tr><td><a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">Chronos-Bolt</a> (tiny y small)</td><td>Amazon</td><td>Apache-2.0</td><td>Modelos convertidos a ONNX</td></tr>
+              <tr><td><a href="https://github.com/microsoft/onnxruntime" target="_blank" rel="noopener">ONNX Runtime Web</a></td><td>Microsoft</td><td>MIT</td><td>Motor de inferencia en el navegador</td></tr>
+              <tr><td><a href="https://rsms.me/inter/" target="_blank" rel="noopener">Inter</a></td><td>Rasmus Andersson</td><td>SIL Open Font License 1.1</td><td>Tipografía</td></tr>
+              <tr><td><a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a></td><td>Colaboradores de Lucide</td><td>ISC</td><td>Trazados de los iconos</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Los pesos de los modelos se han convertido a formato ONNX sin reentrenarlos; los scripts de conversión están en el repositorio. Kronos se describe en Shi et al., «Kronos: A Foundation
+          Model for the Language of Financial Markets», <a href="https://arxiv.org/abs/2508.02739" target="_blank" rel="noopener">arXiv:2508.02739</a>.
+        </p>
+        <h2>Datos de mercado</h2>
+        <p>Las velas proceden de las API públicas de Binance, Bybit, OKX y Coinbase, consultadas por tu navegador. Esos datos pertenecen a sus proveedores y se rigen por sus condiciones de uso.</p>
+      </div>
+    </main>
+    <!--#footer-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

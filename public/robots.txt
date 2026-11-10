@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /models/
+
+Sitemap: https://kronos.aminox.dev/sitemap.xml

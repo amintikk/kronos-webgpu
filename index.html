@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kronos WebGPU · Predicción de velas con IA en tu navegador</title>
+    <meta name="description" content="Ejecuta Kronos, un modelo fundacional para velas de mercados financieros, directamente en tu navegador con WebGPU. Gratis, sin servidor y de código abierto." />
+    <link rel="canonical" href="https://kronos.aminox.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kronos WebGPU · Predicción de velas con IA en tu navegador" />
+    <meta property="og:description" content="Modelos de predicción de series temporales ejecutándose en tu propio equipo. Gratis, sin servidor y de código abierto." />
+    <meta property="og:url" content="https://kronos.aminox.dev/" />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Old shared links pointed at the app on "/": send them to /app/ with their settings.
+      if (/[#&]\w+=/.test(location.hash)) location.replace('/app/' + location.hash);
+      document.documentElement.classList.add('js'); // content stays visible if scripts fail
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kronos WebGPU",
+        "url": "https://kronos.aminox.dev/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Navegador web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "license": "https://opensource.org/licenses/MIT",
+        "codeRepository": "https://github.com/amintikk/kronos-webgpu",
+        "author": { "@type": "Person", "name": "Amin Tahtah Toumi" }
+      }
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-->
+
+    <main>
+      <section class="hero-sec">
+        <div class="wrap hero-grid">
+          <div class="hero-copy reveal">
+            <span class="eyebrow"><i data-icon="code" data-size="14"></i>Código abierto · Sin servidor · WebGPU</span>
+            <h1>Predicción de velas con IA, directamente en tu navegador.</h1>
+            <p class="lead">
+              Kronos WebGPU ejecuta <strong>Kronos</strong>, un modelo fundacional entrenado con velas de más de 45 bolsas de todo el mundo, en tu propio equipo. Eliges un par, pulsas
+              «Predecir» y obtienes escenarios probables con sus bandas de confianza.
+            </p>
+            <div class="cta-row">
+              <a class="btn primary big" href="/app/"><i data-icon="play" data-size="13"></i>Abrir la app</a>
+              <a class="btn big" href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener"><i data-icon="github" data-size="17"></i>Ver el código</a>
+            </div>
+            <ul class="ticks">
+              <li><i data-icon="check" data-size="15"></i>Gratis y sin cuenta</li>
+              <li><i data-icon="check" data-size="15"></i>Tus datos no salen del navegador</li>
+              <li><i data-icon="check" data-size="15"></i>Licencia MIT</li>
+            </ul>
+          </div>
+          <figure class="demo card reveal">
+            <figcaption class="demo-head">
+              <div>
+                <span class="demo-pair">BTC/USDT · 1 h</span>
+                <span class="demo-model" id="demo-model">Kronos-mini · 32 trayectorias</span>
+              </div>
+              <span class="pill mem">Ejemplo real</span>
+            </figcaption>
+            <div id="demo-chart" class="demo-chart" role="img" aria-label="Ejemplo de predicción: velas de BTC/USDT y el abanico de escenarios previstos por Kronos-mini para las 48 horas siguientes"></div>
+            <div class="demo-foot" id="demo-foot"></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="sec" id="que-hace">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="kicker">Qué hace</span>
+            <h2>Un terminal de predicción completo, sin instalar nada</h2>
+            <p>Todo lo que necesitas para probar un modelo de predicción sobre datos reales y saber si merece la pena fiarse de él.</p>
+          </div>
+          <div class="features">
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="activity" data-size="20"></i></span><h3>Predicción probabilística</h3><p>El modelo genera decenas de trayectorias posibles. Verás la mediana, las bandas del 50 % y del 80 % y la probabilidad de que el precio acabe más arriba.</p></article>
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="history" data-size="20"></i></span><h3>Backtest honesto</h3><p>Predice desde el pasado y compara con lo que ocurrió: error medio, aciertos de dirección y si mejora a suponer que el precio no se mueve.</p></article>
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="database" data-size="20"></i></span><h3>Datos en directo</h3><p>Velas de Binance, Bybit, OKX y Coinbase pedidas directamente por tu navegador, con actualización en tiempo real. También admite tu propio CSV.</p></article>
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="layers" data-size="20"></i></span><h3>Cinco modelos</h3><p>Kronos mini, small y base, y Chronos-Bolt de Amazon como segunda opinión. Fija una predicción y compárala con la de otro modelo.</p></article>
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="lock" data-size="20"></i></span><h3>Privado por diseño</h3><p>No hay servidor que reciba tus consultas. El modelo se descarga una vez, se guarda en tu navegador y se ejecuta en tu equipo.</p></article>
+            <article class="feature card reveal"><span class="f-ico"><i data-icon="download" data-size="20"></i></span><h3>Exporta y comparte</h3><p>Descarga la predicción en CSV o JSON, el gráfico en PNG, o copia un enlace con la configuración exacta que usaste.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec alt" id="como-funciona">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="kicker">Cómo funciona</span>
+            <h2>Tres pasos, todos en tu equipo</h2>
+          </div>
+          <ol class="steps">
+            <li class="step card reveal">
+              <span class="step-n">1</span>
+              <h3>Descarga el modelo una vez</h3>
+              <p>Entre 34 MB y 429 MB según el modelo. Se guarda en la caché del navegador y las siguientes veces arranca al instante.</p>
+            </li>
+            <li class="step card reveal">
+              <span class="step-n">2</span>
+              <h3>Lee las velas de la bolsa</h3>
+              <p>Tu navegador pide el histórico (apertura, máximo, mínimo, cierre y volumen) directamente a la bolsa que elijas.</p>
+            </li>
+            <li class="step card reveal">
+              <span class="step-n">3</span>
+              <h3>Genera escenarios</h3>
+              <p>La GPU (o la CPU si no hay WebGPU) ejecuta el modelo vela a vela y repite la predicción muchas veces para medir la incertidumbre.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="kronos">
+        <div class="wrap two-col">
+          <div class="reveal">
+            <span class="kicker">Qué es Kronos</span>
+            <h2>Un modelo que habla el «idioma» de los mercados</h2>
+            <p>
+              Kronos es una familia de modelos fundacionales que trata las velas de precio como si fueran un lenguaje. Igual que un modelo de texto aprende a predecir la siguiente palabra,
+              Kronos aprende a predecir la siguiente vela a partir de las anteriores.
+            </p>
+            <p>
+              Lo presentaron Yu Shi, Zongliang Fu, Shuo Chen, Bohan Zhao, Wei Xu, Changshui Zhang y Jian Li en el artículo
+              <a href="https://arxiv.org/abs/2508.02739" target="_blank" rel="noopener">«Kronos: A Foundation Model for the Language of Financial Markets»</a>, aceptado en AAAI 2026. Se entrenó con
+              datos de más de 45 bolsas de todo el mundo, y su código y sus pesos son abiertos con licencia MIT.
+            </p>
+            <div class="how">
+              <div class="how-item">
+                <span class="how-ico"><i data-icon="layers" data-size="18"></i></span>
+                <div><h3>1. Tokenizador</h3><p>Convierte cada vela (OHLCV) en dos fichas discretas: una gruesa, que captura la forma general, y otra fina, que añade el detalle.</p></div>
+              </div>
+              <div class="how-item">
+                <span class="how-ico"><i data-icon="cpu" data-size="18"></i></span>
+                <div><h3>2. Transformer autorregresivo</h3><p>Lee la secuencia de fichas y da probabilidades para la siguiente. Se muestrea una, se añade y se repite hasta completar el horizonte.</p></div>
+              </div>
+              <div class="how-item">
+                <span class="how-ico"><i data-icon="chart" data-size="18"></i></span>
+                <div><h3>3. Escenarios</h3><p>Repetir el muestreo da trayectorias distintas. Su dispersión es la incertidumbre del modelo: de ahí salen la mediana y las bandas.</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="reveal">
+            <div class="card table-card">
+              <table>
+                <thead><tr><th>Modelo</th><th>Parámetros</th><th>Contexto</th><th>En la app</th></tr></thead>
+                <tbody>
+                  <tr><td>Kronos-mini</td><td>4,1 M</td><td>2048 velas</td><td><span class="yes"><i data-icon="check" data-size="14"></i>Sí</span></td></tr>
+                  <tr><td>Kronos-small</td><td>24,7 M</td><td>512 velas</td><td><span class="yes"><i data-icon="check" data-size="14"></i>Sí</span></td></tr>
+                  <tr><td>Kronos-base</td><td>102,3 M</td><td>512 velas</td><td><span class="yes"><i data-icon="check" data-size="14"></i>Sí</span></td></tr>
+                  <tr><td>Kronos-large</td><td>499,2 M</td><td>512 velas</td><td><span class="no">Pesos no publicados</span></td></tr>
+                  <tr><td>Chronos-Bolt tiny</td><td>9 M</td><td>2048 velas</td><td><span class="yes"><i data-icon="check" data-size="14"></i>Sí</span></td></tr>
+                  <tr><td>Chronos-Bolt small</td><td>48 M</td><td>2048 velas</td><td><span class="yes"><i data-icon="check" data-size="14"></i>Sí</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">Chronos-Bolt</a> es un modelo generalista de Amazon (Apache-2.0). Predice solo el cierre,
+              en una pasada y como cuantiles, y sirve para contrastar lo que dice Kronos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec alt" id="tecnologia">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="kicker">Lo que hemos construido</span>
+            <h2>Kronos, adaptado para ejecutarse en el navegador</h2>
+            <p>El código original está pensado para Python y PyTorch en un servidor. Para llevarlo al navegador hubo que rehacer la parte de inferencia.</p>
+          </div>
+          <div class="pipeline reveal" aria-label="Recorrido de los datos">
+            <span class="pipe">Bolsa</span><i data-icon="arrowRight" data-size="16"></i>
+            <span class="pipe">Velas</span><i data-icon="arrowRight" data-size="16"></i>
+            <span class="pipe">Tokenizador</span><i data-icon="arrowRight" data-size="16"></i>
+            <span class="pipe accent">Transformer × N velas</span><i data-icon="arrowRight" data-size="16"></i>
+            <span class="pipe">Decodificador</span><i data-icon="arrowRight" data-size="16"></i>
+            <span class="pipe">Mediana y bandas</span>
+          </div>
+          <div class="tech">
+            <article class="card reveal"><h3><i data-icon="zap" data-size="18"></i>Una ficha por paso</h3><p>El bucle original vuelve a procesar todo el contexto en cada vela nueva. Exportamos el modelo a ONNX con una caché de claves y valores, así que cada paso procesa una sola ficha y el contexto se calcula una vez para todas las trayectorias.</p></article>
+            <article class="card reveal"><h3><i data-icon="shield" data-size="18"></i>Verificado contra el original</h3><p>Los tests comparan el motor del navegador con el Kronos oficial en PyTorch: con decodificación determinista dan la misma predicción, y las salidas internas difieren menos de 0,00004.</p></article>
+            <article class="card reveal"><h3><i data-icon="cpu" data-size="18"></i>WebGPU con respaldo</h3><p>Con WebGPU la caché se queda en la tarjeta gráfica entre pasos. Si el navegador no lo admite, el mismo modelo corre en la CPU con WebAssembly y varios hilos.</p></article>
+            <article class="card reveal"><h3><i data-icon="globe" data-size="18"></i>Una web estática</h3><p>No hay backend: solo archivos. La interfaz, el gráfico y el motor están hechos a medida, sin frameworks, y el modelo se sirve desde el mismo dominio.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="aviso">
+        <div class="wrap">
+          <div class="honest card reveal">
+            <span class="f-ico warn"><i data-icon="alert" data-size="20"></i></span>
+            <div>
+              <h2>Lo que no es</h2>
+              <p>
+                No es una señal de compra ni de venta, ni asesoramiento financiero. Ningún modelo predice los mercados de forma fiable: Kronos da escenarios estadísticos que a menudo fallan. Por eso
+                la app incluye backtest y compara siempre con la opción más simple, suponer que el precio no se mueve. Antes de dar valor a una predicción, comprueba cómo le habría ido al modelo en el
+                pasado.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec alt" id="preguntas">
+        <div class="wrap narrow">
+          <div class="sec-head reveal">
+            <span class="kicker">Preguntas frecuentes</span>
+            <h2>Antes de empezar</h2>
+          </div>
+          <div class="faq reveal">
+            <details><summary>¿Es gratis?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Sí. No hay cuentas, planes ni publicidad. El cálculo lo hace tu equipo, así que ejecutarlo no nos cuesta nada.</p></div></details>
+            <details><summary>¿Se envían mis datos a algún servidor?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>No. Las velas las pide tu navegador directamente a la bolsa y el modelo se ejecuta en tu equipo. Este sitio solo sirve archivos estáticos: no recibe tus consultas ni tus resultados. Los detalles están en la <a href="/privacidad/">política de privacidad</a>.</p></div></details>
+            <details><summary>¿Qué navegador necesito?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Cualquier navegador actual. Con WebGPU (Chrome y Edge de escritorio, y cada vez más navegadores) usa la tarjeta gráfica; sin WebGPU funciona en la CPU, algo más lento. En móvil va bien con los modelos pequeños.</p></div></details>
+            <details><summary>¿Cuánto ocupa y cuánto tarda?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Kronos-mini ocupa 34 MB y Kronos-base 429 MB; se descargan una vez. Una predicción de 32 velas con 12 trayectorias de Kronos-mini tarda de unos segundos a medio minuto según el equipo; los modelos grandes, bastante más.</p></div></details>
+            <details><summary>¿Puedo usar mis propios datos?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Sí. Carga un CSV con columnas de fecha, apertura, máximo, mínimo y cierre (y, si las tienes, volumen e importe). Sirve para acciones, divisas o cualquier serie con velas. El archivo no sale de tu equipo.</p></div></details>
+            <details><summary>¿Puedo fiarme de las predicciones?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Con cautela. Usa el backtest: si la habilidad frente a «el precio no se mueve» es negativa o cercana a cero, el modelo no está aportando nada en ese mercado y en esa escala de tiempo.</p></div></details>
+            <details><summary>¿Cómo lo ejecuto yo mismo?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>El repositorio de <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">GitHub</a> incluye la app, los scripts que exportan los modelos a ONNX desde los pesos oficiales y los tests que los comparan con PyTorch. Se puede alojar en cualquier servidor de archivos estáticos.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="wrap">
+          <div class="final card reveal">
+            <div>
+              <h2>Pruébalo con tu par favorito</h2>
+              <p>Se abre en segundos. La primera predicción descarga el modelo; las siguientes, no.</p>
+            </div>
+            <div class="cta-row">
+              <a class="btn primary big" href="/app/"><i data-icon="play" data-size="13"></i>Abrir la app</a>
+              <a class="btn big" href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener"><i data-icon="github" data-size="17"></i>GitHub</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--#footer-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>
