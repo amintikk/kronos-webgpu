@@ -123,7 +123,7 @@ async function demo(): Promise<void> {
   const up = Math.round(s.pUp * 100);
   document.getElementById('demo-foot')?.replaceChildren(
     ...[
-      ['Precio previsto a 48 h', fmtPrice(s.endMedian)],
+      ['Previsto a 48 h', fmtPrice(s.endMedian)],
       ['Variación', fmtPct(s.changePct)],
       ['Rango p10–p90', `${fmtPct((s.endLo / s.last - 1) * 100, 1)} / ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`],
       ['Prob. de subir', `${up} %`],
