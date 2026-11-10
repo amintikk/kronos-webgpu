@@ -1554,6 +1554,38 @@ tbody tr:last-child td {
   }
 }
 
+/* first paint of the app: panels settle in one after another */
+.layout > .side,
+.stage > .bar,
+.stage > .chart-wrap,
+.stage > .tabs,
+.stage > .tab-body {
+  animation: settle 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stage > .bar {
+  animation-delay: 0.05s;
+}
+.stage > .chart-wrap {
+  animation-delay: 0.12s;
+}
+.stage > .tabs {
+  animation-delay: 0.2s;
+}
+.stage > .tab-body {
+  animation-delay: 0.26s;
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@media (max-width: 920px) {
+  .layout > .side {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

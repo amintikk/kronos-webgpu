@@ -9,7 +9,9 @@
     <meta name="color-scheme" content="dark light" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <script>
-      document.documentElement.classList.add('js'); // content stays visible if scripts fail
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
       try {
         const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
         if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;

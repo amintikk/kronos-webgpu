@@ -115,7 +115,7 @@ export function tokensFigure(host: HTMLElement, d: DemoData): void {
       const cx = labelW + colW * (k + 0.5);
       const [, o, h, l, c] = it.c as [number, number, number, number, number];
       const up = c >= o;
-      const g = el('g', { class: 'fig-col' });
+      const g = el('g', { class: 'fig-col', style: `--i:${k}` });
       g.append(el('rect', { x: labelW + colW * k, y: 0, width: colW, height: H, class: 'fig-hit' }));
       g.append(el('line', { x1: cx, x2: cx, y1: y(h), y2: y(l), class: up ? 'stroke-up' : 'stroke-down' }));
       const bw = Math.max(3, Math.min(14, colW * 0.36));
@@ -186,7 +186,7 @@ export function pathsFigure(host: HTMLElement, controls: HTMLElement, d: DemoDat
     const a = history.length - 1;
     const line = (vals: number[], from: number) => vals.map((v, i) => `${i ? 'L' : 'M'}${x(from + i).toFixed(1)},${y(v).toFixed(1)}`).join('');
     s.append(el('line', { x1: x(a), x2: x(a), y1: 0, y2: H, class: 'fig-divider' }));
-    s.append(el('path', { d: line(history.map((c) => c[4]!), 0), class: 'fig-history' }));
+    s.append(el('path', { d: line(history.map((c) => c[4]!), 0), class: 'fig-history', pathLength: 1 }));
     const subset = closes.slice(0, shown).map((p) => [anchor[4]!, ...p]);
     const pts = (k: number) => subset.map((p) => p[k]!).sort((m, n) => m - n);
     if (shown >= 4) {
@@ -194,10 +194,10 @@ export function pathsFigure(host: HTMLElement, controls: HTMLElement, d: DemoDat
       const lower = Array.from({ length: P + 1 }, (_, k) => quantile(pts(k), 0.1));
       s.append(el('path', { d: `${line(upper, a)}L${lower.map((_, i) => `${x(a + P - i).toFixed(1)},${y(lower[P - i]!).toFixed(1)}`).join('L')}Z`, class: 'fig-band' }));
     }
-    for (const p of subset) s.append(el('path', { d: line(p, a), class: shown === 1 ? 'fig-path solo' : 'fig-path' }));
+    subset.forEach((p, k) => s.append(el('path', { d: line(p, a), class: shown === 1 ? 'fig-path solo' : 'fig-path', pathLength: 1, style: `--i:${k % 16}` })));
     if (shown > 1) {
       const median = Array.from({ length: P + 1 }, (_, k) => quantile(pts(k), 0.5));
-      s.append(el('path', { d: line(median, a), class: 'fig-median' }));
+      s.append(el('path', { d: line(median, a), class: 'fig-median', pathLength: 1 }));
       s.append(el('text', { x: x(a + P) + 8, y: y(median[P]!), class: 'fig-label accent', 'dominant-baseline': 'middle' }, 'mediana'));
     }
     s.append(el('text', { x: x(a) - 8, y: H - 4, class: 'fig-note', 'text-anchor': 'end' }, 'pasado'));
@@ -253,7 +253,7 @@ export function workFigure(host: HTMLElement, d: DemoData): void {
       if (labelW) s.append(el('text', { x: 0, y: y0 + 12, class: 'fig-label', 'dominant-baseline': 'middle' }, r.label));
       else s.append(el('text', { x: 0, y: y0 - 10, class: 'fig-label' }, r.label));
       const w = Math.max(3, (r.value / upstream) * max);
-      s.append(el('rect', { x: labelW, y: y0, width: w, height: 24, rx: 4, class: r.cls }));
+      s.append(el('rect', { x: labelW, y: y0, width: w, height: 24, rx: 4, class: `${r.cls} fig-bar`, style: `--i:${k}` }));
       s.append(el('text', { x: labelW + w + 10, y: y0 + 12, class: 'fig-value', 'dominant-baseline': 'middle' }, r.value.toLocaleString('es-ES')));
     });
     host.prepend(s);
@@ -315,7 +315,7 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
     const yl = el('text', { x: 0, y: 12, class: 'fig-label' }, 'Variación real');
     s.append(yl);
     for (const r of w) {
-      const g = el('g', { class: 'fig-dot' });
+      const g = el('g', { class: 'fig-dot', style: `--i:${w.indexOf(r)}` });
       g.append(el('circle', { cx: x(r.pred), cy: y(r.real), r: 14, class: 'fig-hit' }));
       g.append(el('circle', { cx: x(r.pred), cy: y(r.real), r: 5.5, class: r.inside ? 'dot-in' : 'dot-out' }));
       g.addEventListener('pointerenter', () => {

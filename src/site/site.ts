@@ -8,6 +8,8 @@ import { hydrateIcons, icon } from '../ui/icons.ts';
 import { backtestFigure, pathsFigure, tokensFigure, workFigure, type DemoData } from './figures.ts';
 
 const KEY = 'kronos-settings';
+// Tell the inline safety net in <head> that the script loaded (it would otherwise unhide everything).
+(window as unknown as { kronosReady?: boolean }).kronosReady = true;
 
 function readTheme(): string {
   try {
@@ -131,7 +133,54 @@ function figures(d: DemoData): void {
   run('fig-backtest', (h) => backtestFigure(h, document.getElementById('fig-backtest-stats')!, d));
 }
 
+/**
+ * Gentle entrance: blocks fade up as they scroll into view, siblings a few tens of ms apart, and
+ * figures start their own animation (bars growing, lines drawing) only once they are visible.
+ */
+function wireReveal(): void {
+  const selector = [
+    '.landing-hero h1', '.lead', '.hero-actions', '.figure',
+    '.block h2', '.block .intro', '.block-body > p', '.defs > div', '.numbered li', '.fig', '.shot', 'table.plain', '.faq details', '.closing',
+    '.doc h1', '.doc .updated', '.doc .wrap > h2', '.doc .wrap > p', '.doc .wrap > ul', '.doc .card',
+    '.foot-grid > div', '.foot-bottom',
+  ].join(',');
+  const items = [...document.querySelectorAll<HTMLElement>(selector)];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
+  const show = (el: HTMLElement) => {
+    el.classList.add('in');
+    if (el.matches('.fig, .figure')) el.classList.add('play');
+  };
+  if (still) {
+    items.forEach(show);
+    return;
+  }
+  // Stagger siblings that enter together; reset the counter on every observer batch.
+  const io = new IntersectionObserver(
+    (entries) => {
+      let n = 0;
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const el = e.target as HTMLElement;
+        el.style.setProperty('--rv-delay', `${Math.min(n++, 6) * 70}ms`);
+        show(el);
+        io.unobserve(el);
+      }
+    },
+    { rootMargin: '0px 0px -6% 0px', threshold: 0.08 },
+  );
+  // The hidden state comes from the stylesheet (same selectors), so nothing flashes before this runs.
+  for (const el of items) io.observe(el);
+  // The last lines of the page may never cross the observer's margin: show them at the bottom.
+  const atEnd = () => {
+    if (innerHeight + scrollY < document.documentElement.scrollHeight - 4) return;
+    for (const el of items) if (!el.classList.contains('in')) show(el);
+    removeEventListener('scroll', atEnd);
+  };
+  addEventListener('scroll', atEnd, { passive: true });
+}
+
 hydrateIcons();
 wireTheme();
 wireNav();
+wireReveal();
 void demo().catch(() => document.querySelector('.figure')?.remove());
