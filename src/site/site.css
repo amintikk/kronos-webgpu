@@ -468,9 +468,13 @@ table.plain,
 }
 
 /* ------------------------------------------------------------ figures */
+/* Outside the section grid on purpose: the sticky section title stops before it. */
+.shot-wrap {
+  margin-top: -24px;
+  padding-bottom: 56px;
+}
 .shot {
-  grid-column: 1 / -1;
-  margin: 24px 0 0;
+  margin: 0;
 }
 .shot a {
   display: block;
