@@ -11,7 +11,9 @@ let openMenu: Menu | null = null;
 
 /** A floating list anchored to a trigger: shared by the custom select and the symbol search. */
 class Menu {
-  readonly el = h('div', { class: 'pop', role: 'listbox' });
+  readonly el = h('div', { class: 'pop' });
+  /** Scrolls inside the rounded frame, so its scrollbar does not cut the corners. */
+  private list = h('div', { class: 'pop-list', role: 'listbox' });
   private items: Item[] = [];
   private active = -1;
   private selected: string | null = null;
@@ -22,6 +24,7 @@ class Menu {
   constructor(anchor: HTMLElement, onPick: (item: Item) => void) {
     this.anchor = anchor;
     this.onPick = onPick;
+    this.el.append(this.list);
     this.el.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus on the trigger
     this.el.addEventListener('click', (e) => {
       const opt = (e.target as HTMLElement).closest<HTMLElement>('[data-index]');
@@ -34,7 +37,7 @@ class Menu {
     this.items = items;
     this.selected = selected;
     this.active = Math.max(0, items.findIndex((i) => i.value === selected));
-    this.el.replaceChildren(
+    this.list.replaceChildren(
       ...(items.length
         ? items.map((it, i) =>
             h('div', { class: 'pop-item', role: 'option', 'data-index': i, 'aria-selected': String(it.value === selected) }, h('span', {}, it.label), it.value === selected ? icon('check', 15) : null),

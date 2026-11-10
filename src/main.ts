@@ -238,7 +238,9 @@ function stepper(input: HTMLInputElement): HTMLElement {
 }
 
 function buildControls(): void {
-  const root = $('controls');
+  // The card keeps its rounded frame; this inner list scrolls, so the scrollbar stays clear of the corners.
+  const root = h('div', { class: 'side-scroll' });
+  $('controls').append(root);
   let openState: Record<string, boolean> = {};
   try {
     openState = JSON.parse(localStorage.getItem('kronos-sections') ?? '{}');
@@ -934,7 +936,7 @@ function renderBacktest(): void {
   el.replaceChildren(
     tiles,
     h('div', { class: 'section-title' }, t('Por ventana (pulsa una fila para verla en el gráfico)')),
-    h('div', { class: 'table-wrap card' }, h('table', {}, h('thead', {}, h('tr', {}, ...head)), h('tbody', {}, ...rows))),
+    h('div', { class: 'scroll-card card' }, h('div', { class: 'table-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, ...head)), h('tbody', {}, ...rows)))),
     h(
       'div',
       { class: 'hint', style: 'margin-top:8px' },
@@ -987,7 +989,7 @@ function renderTable(): void {
       h('td', {}, real ? fmtPrice(real.c) : '—'),
     );
   });
-  el.replaceChildren(h('div', { class: 'table-wrap card' }, h('table', {}, h('thead', {}, h('tr', {}, ...head.map((x) => h('th', {}, x)))), h('tbody', {}, ...body))));
+  el.replaceChildren(h('div', { class: 'scroll-card card' }, h('div', { class: 'table-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, ...head.map((x) => h('th', {}, x)))), h('tbody', {}, ...body)))));
 }
 
 async function renderModels(): Promise<void> {
