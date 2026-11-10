@@ -22,7 +22,7 @@ function isDark(theme: string): boolean {
 
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const colors = () => ({
-  surface: css('--surface'),
+  surface: css('--bg'), // the chart sits on the page, not on a card
   text: css('--text'),
   grid: css('--grid'),
   border: css('--border'),
@@ -72,25 +72,6 @@ function wireNav(): void {
   });
 }
 
-function wireReveal(): void {
-  const items = document.querySelectorAll<HTMLElement>('.reveal');
-  if (!('IntersectionObserver' in window)) {
-    items.forEach((el) => el.classList.add('in'));
-    return;
-  }
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      }
-    },
-    { rootMargin: '0px 0px -8% 0px' },
-  );
-  items.forEach((el) => io.observe(el));
-}
-
 interface Demo {
   model: string;
   candles: number[][];
@@ -123,10 +104,10 @@ async function demo(): Promise<void> {
   const up = Math.round(s.pUp * 100);
   document.getElementById('demo-foot')?.replaceChildren(
     ...[
-      ['Previsto a 48 h', fmtPrice(s.endMedian)],
-      ['Variación', fmtPct(s.changePct)],
-      ['Rango p10–p90', `${fmtPct((s.endLo / s.last - 1) * 100, 1)} / ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`],
-      ['Prob. de subir', `${up} %`],
+      ['Mediana a 48 h', fmtPrice(s.endMedian)],
+      ['Variación prevista', fmtPct(s.changePct)],
+      ['80 % de los escenarios', `${fmtPct((s.endLo / s.last - 1) * 100, 1)} a ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`],
+      ['Escenarios al alza', `${up} %`],
     ].map(([k, v]) => {
       const div = document.createElement('div');
       const a = document.createElement('span');
@@ -142,5 +123,4 @@ async function demo(): Promise<void> {
 hydrateIcons();
 wireTheme();
 wireNav();
-wireReveal();
-void demo().catch(() => document.querySelector('.demo')?.remove());
+void demo().catch(() => document.querySelector('.figure')?.remove());
