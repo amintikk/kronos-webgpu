@@ -888,6 +888,21 @@ table.plain,
     left: 18px;
     right: 18px;
   }
+  /* One rule per boundary on phones: drop the extra lines that sat next to the section rules. */
+  .figure {
+    border-bottom: 0;
+  }
+  .figure figcaption {
+    border-top: 0;
+    padding-top: 12px;
+  }
+  .faq {
+    border-top: 0;
+  }
+  /* Room between the app screenshot's frame and its caption. */
+  .shot figcaption {
+    margin-top: 20px;
+  }
   .site-top-inner {
     height: 58px;
     gap: 8px;
