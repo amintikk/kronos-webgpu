@@ -951,8 +951,21 @@ table.plain,
   .doc .table-card {
     overflow-x: auto;
   }
-  table.plain td:first-child {
-    white-space: normal;
+  /* The model table keeps names and numbers on one line; only the last column wraps. */
+  table.plain {
+    font-size: 13px;
+  }
+  table.plain th,
+  table.plain td {
+    padding: 9px 10px 9px 0;
+  }
+  table.plain td:nth-child(-n + 3),
+  table.plain th:nth-child(-n + 3) {
+    white-space: nowrap;
+  }
+  .shot-wrap {
+    margin-top: -8px;
+    padding-bottom: 44px;
   }
 }
 
