@@ -211,37 +211,99 @@ table,
   gap: 6px;
   flex: none;
 }
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 12.5px;
+.engine {
+  position: relative;
+}
+.engine-btn {
+  position: relative;
   color: var(--text-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 4px;
 }
-.chip::before {
-  content: '';
-  width: 7px;
-  height: 7px;
+.engine-btn .engine-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.engine-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--muted);
   flex: none;
-  transition: background-color 0.3s;
+  background: var(--muted);
+  transition: background-color 0.3s var(--ease);
 }
-.chip[data-state='gpu']::before {
+[data-state='gpu'] > .engine-dot,
+.engine-dot[data-state='gpu'] {
   background: var(--up);
-  box-shadow: 0 0 0 3px var(--up-soft);
 }
-.chip[data-state='cpu']::before {
-  background: var(--warn-ink);
+[data-state='cpu'] > .engine-dot,
+.engine-dot[data-state='cpu'] {
+  background: var(--amber);
+}
+[data-state='error'] > .engine-dot,
+.engine-dot[data-state='error'] {
+  background: var(--down);
+}
+[data-state='boot'] > .engine-dot,
+.engine-dot[data-state='boot'] {
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+.engine-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: 280px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top right;
+  transition: opacity 0.16s var(--ease), transform 0.2s var(--ease), visibility 0s linear 0.2s;
+}
+.engine-pop.open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+.engine-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.engine-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  color: var(--muted);
+}
+.engine-row b {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.engine-note {
+  margin: 8px 0 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.engine-pop .btn {
+  width: 100%;
 }
 #btn-settings {
   display: none;
@@ -1497,8 +1559,9 @@ tbody tr:last-child td {
   .tag {
     display: none;
   }
-  .chip {
-    max-width: 30vw;
+  .engine-pop {
+    right: -88px;
+    width: min(280px, calc(100vw - 24px));
   }
   #btn-settings {
     display: inline-flex;

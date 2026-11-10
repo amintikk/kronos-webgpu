@@ -32,6 +32,8 @@ let busy = false;
 let booting = false;
 let nextForecastId = 1;
 let gpuLabel = '';
+/** Why the CPU engine is in use, shown in the engine indicator. */
+let cpuReason: 'user' | 'software' | 'nogpu' | 'fallback' = 'nogpu';
 let backtest: { rows: { forecast: Forecast; score: Score }[]; model: string; running: boolean } | null = null;
 const inMemory = new Set<string>();
 
@@ -531,6 +533,7 @@ function syncButtons(): void {
 async function chooseAndBoot(): Promise<void> {
   let backend: Backend = 'wasm';
   gpuLabel = '';
+  cpuReason = S.backend === 'wasm' ? 'user' : 'nogpu';
   if (S.backend !== 'wasm') {
     try {
       // The first request can come back empty while the GPU process is still starting.
@@ -541,7 +544,8 @@ async function chooseAndBoot(): Promise<void> {
         // A software rasteriser is slower than multi-threaded WASM: only use it when asked for explicitly.
         const software = (info as { isFallbackAdapter?: boolean } | undefined)?.isFallbackAdapter || /swiftshader|llvmpipe|lavapipe|software/i.test(`${gpuLabel} ${info?.description ?? ''}`);
         if (!software || S.backend === 'webgpu') backend = 'webgpu';
-        else log(t('WebGPU solo está disponible por software en este equipo; se usa la CPU.'));
+        else cpuReason = 'software';
+        if (backend === 'wasm') log(t('WebGPU solo está disponible por software en este equipo; se usa la CPU.'));
       }
     } catch {
       /* no WebGPU */
@@ -551,19 +555,70 @@ async function chooseAndBoot(): Promise<void> {
   await bootEngine(backend);
 }
 
+type EngineView = { state: 'boot' | 'gpu' | 'cpu' | 'error'; threads?: number; error?: string };
+
+/** The header indicator: one icon whose dot shows the state, with the details in a hover card. */
+function renderEngine(v: EngineView): void {
+  const btn = $('engine-btn');
+  const pop = $('engine-pop');
+  btn.dataset.state = v.state;
+  btn.replaceChildren(icon(v.state === 'gpu' ? 'zap' : 'cpu', 18), h('span', { class: 'engine-dot' }));
+  const title =
+    v.state === 'gpu' ? t('Usando la tarjeta gráfica') : v.state === 'cpu' ? t('Usando la CPU') : v.state === 'boot' ? t('Iniciando el motor…') : t('Motor no disponible');
+  btn.setAttribute('aria-label', `${t('Motor de inferencia')}: ${title}`);
+  const rows: [string, string][] = [];
+  let note = '';
+  if (v.state === 'gpu') {
+    rows.push([t('Motor'), 'WebGPU']);
+    if (gpuLabel) rows.push([t('Tarjeta'), gpuLabel]);
+    note = t('La forma más rápida de ejecutar los modelos en este equipo.');
+  } else if (v.state === 'cpu') {
+    rows.push([t('Motor'), 'WebAssembly'], [t('Hilos'), String(v.threads ?? 1)]);
+    note = {
+      user: t('Elegido en los ajustes.'),
+      software: t('Este equipo solo ofrece WebGPU por software, que sería más lento que la CPU.'),
+      nogpu: t('Este navegador no ofrece WebGPU. Funciona igual, algo más despacio.'),
+      fallback: t('WebGPU dio un error en este equipo y se cambió a la CPU.'),
+    }[cpuReason];
+    if (!crossOriginIsolated) note += ` ${t('(sin aislamiento de origen: un solo hilo)')}`;
+  } else if (v.state === 'error') {
+    note = v.error ?? '';
+  } else {
+    note = t('Preparando WebAssembly y comprobando si hay WebGPU.');
+  }
+  const change = h('button', { type: 'button', class: 'btn small' }, t('Cambiar motor'));
+  change.addEventListener('click', () => {
+    pop.classList.remove('open');
+    if (matchMedia('(max-width: 920px)').matches) document.body.classList.add('drawer-open');
+    const field = document.getElementById('f-backend-btn');
+    const acc = field?.closest('.acc');
+    if (acc && !acc.classList.contains('open')) acc.querySelector<HTMLElement>('.acc-head')?.click();
+    setTimeout(() => {
+      field?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      field?.focus({ preventScroll: true });
+    }, 350);
+  });
+  const parts: HTMLElement[] = [
+    h('div', { class: 'engine-title' }, h('span', { class: 'engine-dot', 'data-state': v.state }), title),
+    ...rows.map(([k, val]) => h('div', { class: 'engine-row' }, h('span', {}, k), h('b', {}, val))),
+  ];
+  if (note) parts.push(h('p', { class: 'engine-note' }, note));
+  if (v.state !== 'boot') parts.push(change);
+  pop.replaceChildren(...parts);
+}
+
 async function bootEngine(backend: Backend): Promise<void> {
   const cores = navigator.hardwareConcurrency || 4;
   const threads = S.threads > 0 ? S.threads : Math.min(8, Math.max(1, Math.floor(cores * 0.75)));
   inMemory.clear();
-  const chip = $('backend-chip');
-  chip.textContent = t('Iniciando');
+  renderEngine({ state: 'boot' });
   try {
     const ready = await engine.start(backend, threads);
-    chip.dataset.state = ready.backend === 'webgpu' ? 'gpu' : 'cpu';
-    chip.textContent = ready.backend === 'webgpu' ? `WebGPU${gpuLabel ? ` · ${gpuLabel}` : ''}` : `CPU · ${ready.threads} ${ready.threads === 1 ? t('hilo') : t('hilos')}`;
-    log(`${t('Motor')}: ${chip.textContent}${ready.backend === 'wasm' && !crossOriginIsolated ? ` ${t('(sin aislamiento de origen: un solo hilo)')}` : ''}`);
+    renderEngine({ state: ready.backend === 'webgpu' ? 'gpu' : 'cpu', threads: ready.threads });
+    const summary = ready.backend === 'webgpu' ? `WebGPU${gpuLabel ? ` · ${gpuLabel}` : ''}` : `CPU · ${ready.threads} ${ready.threads === 1 ? t('hilo') : t('hilos')}`;
+    log(`${t('Motor')}: ${summary}${ready.backend === 'wasm' && !crossOriginIsolated ? ` ${t('(sin aislamiento de origen: un solo hilo)')}` : ''}`);
   } catch (e) {
-    chip.textContent = t('Motor no disponible');
+    renderEngine({ state: 'error', error: (e as Error).message });
     notice(t('No se pudo iniciar el motor de inferencia: {e}', { e: (e as Error).message }));
   }
   updateHints();
@@ -642,6 +697,7 @@ async function withFallback<T>(job: () => Promise<T>): Promise<T> {
     if (e instanceof CancelError || engine.backend !== 'webgpu' || S.backend !== 'auto') throw e;
     log(t('WebGPU falló ({e}). Se reintenta en CPU.', { e: (e as Error).message }));
     notice(t('WebGPU dio un error en este equipo; se ha cambiado al motor de CPU, más lento.'));
+    cpuReason = 'fallback';
     await bootEngine('wasm');
     return job();
   }
@@ -1138,6 +1194,28 @@ function wireActions(): void {
     toggleMenu(!menu.classList.contains('open'));
   });
   document.addEventListener('click', () => toggleMenu(false));
+  const engineBox = $('engine');
+  const enginePop = $('engine-pop');
+  const engineOpen = (open: boolean) => {
+    enginePop.classList.toggle('open', open);
+    $('engine-btn').setAttribute('aria-expanded', String(open));
+  };
+  let hoverTimer = 0;
+  engineBox.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(hoverTimer);
+    engineOpen(true);
+  });
+  engineBox.addEventListener('pointerleave', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    hoverTimer = window.setTimeout(() => engineOpen(false), 180);
+  });
+  $('engine-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    engineOpen(!enginePop.classList.contains('open'));
+  });
+  enginePop.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => engineOpen(false));
   const drawer = (open: boolean) => document.body.classList.toggle('drawer-open', open);
   $('btn-settings').addEventListener('click', () => drawer(true));
   $('btn-close-settings').addEventListener('click', () => drawer(false));
@@ -1169,6 +1247,7 @@ function wireActions(): void {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) void predict();
     if (e.key === 'Escape') {
+      engineOpen(false);
       if (document.body.classList.contains('drawer-open')) drawer(false);
       else if (busy) engine.cancel();
     }

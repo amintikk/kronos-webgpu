@@ -209,6 +209,21 @@ export const EN: Record<string, string> = {
   'Almacenamiento del sitio: {a} usados de {b} disponibles.': 'Site storage: {a} used of {b} available.',
   'Los modelos se guardan en este navegador y no se vuelven a descargar.': 'Models are kept in this browser and are not downloaded again.',
 
+  // engine indicator
+  'Usando la tarjeta gráfica': 'Using the graphics card',
+  'Usando la CPU': 'Using the CPU',
+  'Iniciando el motor…': 'Starting the engine…',
+  'Motor de inferencia': 'Inference engine',
+  Tarjeta: 'GPU',
+  Hilos: 'Threads',
+  'La forma más rápida de ejecutar los modelos en este equipo.': 'The fastest way to run the models on this device.',
+  'Elegido en los ajustes.': 'Chosen in the settings.',
+  'Este equipo solo ofrece WebGPU por software, que sería más lento que la CPU.': 'This device only offers software WebGPU, which would be slower than the CPU.',
+  'Este navegador no ofrece WebGPU. Funciona igual, algo más despacio.': 'This browser has no WebGPU. It works the same, a bit slower.',
+  'WebGPU dio un error en este equipo y se cambió a la CPU.': 'WebGPU failed on this device, so it switched to the CPU.',
+  'Preparando WebAssembly y comprobando si hay WebGPU.': 'Preparing WebAssembly and checking for WebGPU.',
+  'Cambiar motor': 'Change engine',
+
   // toasts and misc
   'Elige un archivo CSV más abajo': 'Choose a CSV file below',
   'WebGPU solo está disponible por software en este equipo; se usa la CPU.': 'WebGPU is only available in software on this device; using the CPU.',

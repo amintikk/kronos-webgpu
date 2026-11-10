@@ -27,7 +27,10 @@
         <span class="tag">Predicción en tu navegador</span>
       </a>
       <div class="top-right">
-        <span class="chip" id="backend-chip" title="Motor de inferencia">Iniciando</span>
+        <div class="engine" id="engine">
+          <button class="btn ghost icon engine-btn" id="engine-btn" type="button" data-state="boot" aria-label="Motor de inferencia" aria-expanded="false" aria-controls="engine-pop"></button>
+          <div class="engine-pop" id="engine-pop" role="dialog" aria-label="Motor de inferencia"></div>
+        </div>
         <a class="lang-switch" href="/en/app/" hreflang="en" lang="en" title="Use the app in English">EN</a>
         <button class="btn ghost icon" id="btn-settings" title="Ajustes" aria-label="Ajustes"><i data-icon="sliders" data-size="18"></i></button>
         <button class="btn ghost icon" id="btn-share" title="Copiar un enlace con esta configuración" aria-label="Compartir"><i data-icon="link" data-size="18"></i></button>

@@ -27,7 +27,10 @@
         <span class="tag">Forecasting in your browser</span>
       </a>
       <div class="top-right">
-        <span class="chip" id="backend-chip" title="Inference engine">Starting</span>
+        <div class="engine" id="engine">
+          <button class="btn ghost icon engine-btn" id="engine-btn" type="button" data-state="boot" aria-label="Inference engine" aria-expanded="false" aria-controls="engine-pop"></button>
+          <div class="engine-pop" id="engine-pop" role="dialog" aria-label="Inference engine"></div>
+        </div>
         <a class="lang-switch" href="/app/" hreflang="es" lang="es" title="Usar la app en español">ES</a>
         <button class="btn ghost icon" id="btn-settings" title="Settings" aria-label="Settings"><i data-icon="sliders" data-size="18"></i></button>
         <button class="btn ghost icon" id="btn-share" title="Copy a link with these settings" aria-label="Share"><i data-icon="link" data-size="18"></i></button>
