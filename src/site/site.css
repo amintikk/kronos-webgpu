@@ -225,6 +225,9 @@ a.btn {
   padding: 18px 0 20px;
   border-top: 1px solid var(--border);
 }
+.defs > div:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 .defs dt {
   font-weight: 600;
   margin-bottom: 6px;

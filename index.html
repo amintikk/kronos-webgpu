@@ -157,7 +157,6 @@
               <div><dt>Una ficha por paso</dt><dd>El código original vuelve a procesar todo el contexto en cada vela nueva. Aquí el modelo se exporta a ONNX con caché de claves y valores: el contexto se procesa una vez, se comparte entre todas las trayectorias y cada paso solo calcula una ficha.</dd></div>
               <div><dt>Comprobado contra el original</dt><dd>Los tests ejecutan el Kronos oficial en PyTorch y el motor de la web con las mismas velas. Sin azar, dan la misma predicción; las salidas internas difieren menos de 0,00004.</dd></div>
               <div><dt>GPU o CPU</dt><dd>Con WebGPU la caché se queda en la tarjeta gráfica entre pasos. Sin WebGPU, el mismo modelo corre con WebAssembly en varios hilos.</dd></div>
-              <div><dt>Sin backend</dt><dd>La web son archivos estáticos. Las velas se piden directamente a la bolsa y los modelos se descargan de Cloudflare R2. Interfaz, gráfico y motor están escritos a medida, sin frameworks.</dd></div>
             </dl>
           </div>
         </div>
