@@ -379,6 +379,9 @@ async function onChange(key: keyof Settings): Promise<void> {
 }
 
 function updateHints(): void {
+  // Thread count only means something for the CPU engine: show it only then.
+  const threadsRow = inputs.get('threads')?.closest<HTMLElement>('.field');
+  if (threadsRow) threadsRow.hidden = engine.backend !== 'wasm';
   if (!manifest) return;
   const info = modelInfo();
   const { family } = modelParts();
