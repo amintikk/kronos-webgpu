@@ -55,9 +55,10 @@ grafos ONNX:
 `src/engine/kronos.ts` ejecuta el bucle: el contexto se procesa una sola vez y se comparte entre
 todas las trayectorias, y cada paso procesa un único token. En WebGPU la caché se queda en la GPU
 entre pasos. El muestreo (temperatura, top-k, top-p) se hace en JavaScript con una semilla
-reproducible. Si contexto + horizonte supera la ventana del modelo, la caché se reconstruye cada
-64 pasos con los tokens más recientes; el original desliza la ventana un token cada paso, así que
-a partir de ese punto las muestras no son idénticas a las suyas.
+reproducible. Si contexto + horizonte supera la ventana del modelo, por defecto se desliza un token
+por paso como en el original (la caché se reconstruye en cada paso, así que ese tramo es más lento).
+El «modo rápido» descarta hasta 64 tokens de golpe y reconstruye pocas veces: es mucho más rápido,
+pero el modelo ve algo menos de historia y la predicción ya no coincide con la del original.
 
 Chronos-Bolt es un único grafo (`bolt_*.onnx`) que devuelve nueve cuantiles del cierre para 64
 pasos; los horizontes más largos se encadenan realimentando la mediana.

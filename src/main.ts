@@ -167,6 +167,7 @@ const SECTIONS: { title: string; icon: IconName; open: boolean; fields: Field[];
       { key: 'topK', label: 'Top-k (0 = sin límite)', kind: 'number', min: 0, max: 1024, step: 1 },
       { key: 'randomSeed', label: 'Semilla aleatoria', kind: 'check' },
       { key: 'seed', label: 'Semilla', kind: 'number', min: 0, max: 4294967295, step: 1 },
+      { key: 'fastWindow', label: 'Modo rápido con contexto largo', kind: 'check', hint: 'fastWindow' },
       { key: 'offset', label: 'Velas atrás (0 = ahora)', kind: 'number', min: 0, max: 5000, step: 1, hint: 'offset' },
       { key: 'autoPredict', label: 'Predecir al cerrar cada vela', kind: 'check' },
     ],
@@ -385,7 +386,13 @@ function updateHints(): void {
   hints.get('horizon')!.textContent =
     chronosMax && S.horizon > chronosMax ? `Más de ${chronosMax} velas se generan encadenando la mediana: las bandas lejanas son menos fiables.` : '';
   hints.get('offset')!.textContent = S.offset > 0 ? 'Predice desde el pasado y compara con lo ocurrido.' : '';
-  for (const k of ['samples', 'batch', 'temperature', 'topP', 'topK', 'seed', 'randomSeed'] as const) inputs.get(k)!.disabled = family === 'chronos' || (k === 'seed' && S.randomSeed);
+  const overflow = family === 'kronos' && Math.min(S.lookback, info.maxContext) + S.horizon > info.maxContext;
+  hints.get('fastWindow')!.textContent = !overflow
+    ? `Sin efecto ahora: contexto y horizonte caben en las ${info.maxContext} velas del modelo.`
+    : S.fastWindow
+      ? 'Más rápido, pero el modelo ve hasta 64 velas menos de historia y el resultado se aparta del Kronos original.'
+      : 'Exacto como el Kronos original, pero cada vela pasado el límite recalcula todo el contexto y tarda más.';
+  for (const k of ['samples', 'batch', 'temperature', 'topP', 'topK', 'seed', 'randomSeed', 'fastWindow'] as const) inputs.get(k)!.disabled = family === 'chronos' || (k === 'seed' && S.randomSeed);
   for (const k of ['symbol', 'interval', 'live', 'includeOpen'] as const) inputs.get(k)!.disabled = !!csv;
   for (const sync of selectSync.values()) sync();
 }
@@ -614,10 +621,10 @@ async function runForecast(base: Candle[], endIdx: number, samples: number, even
   const common = { id: nextForecastId++, model: S.model, family, label: info.label, times, anchor };
   if (family === 'kronos') {
     const seed = S.randomSeed ? Math.floor(Math.random() * 2 ** 32) : S.seed;
-    const params = { predLen: S.horizon, samples, batch: Math.min(S.batch, samples), temperature: S.temperature, topK: S.topK, topP: S.topP, seed };
+    const params = { predLen: S.horizon, samples, batch: Math.min(S.batch, samples), temperature: S.temperature, topK: S.topK, topP: S.topP, seed, fastWindow: S.fastWindow };
     const { result, ms } = await engine.kronos(key, ctx, times, params, events);
     inMemory.add(S.model);
-    return { ...common, ...fromKronos(result, times, anchor), ms, settings: { contexto: look, horizonte: S.horizon, trayectorias: samples, temperatura: S.temperature, top_p: S.topP, top_k: S.topK, semilla: seed } };
+    return { ...common, ...fromKronos(result, times, anchor), ms, settings: { contexto: look, horizonte: S.horizon, trayectorias: samples, temperatura: S.temperature, top_p: S.topP, top_k: S.topK, semilla: seed, ...(look + S.horizon > info.maxContext ? { ventana: S.fastWindow ? 'rápida' : 'exacta' } : {}) } };
   }
   const { result, ms } = await engine.chronos(key, ctx.map((c) => c.c), S.horizon, events);
   inMemory.add(S.model);

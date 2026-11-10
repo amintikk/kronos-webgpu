@@ -16,7 +16,7 @@ export interface KronosResult {
 
 const FEATS = 6;
 const BITS = 10;
-/** Tokens dropped at once when the context window is full, so the cache is rebuilt only every REPRIME steps. */
+/** Fast mode: tokens dropped at once when the window is full, so the cache is rebuilt only every REPRIME steps. */
 const REPRIME = 64;
 /** Upper bound for the tokenizer decoder's attention buffers per call. */
 const DECODE_BUDGET_BYTES = 192e6;
@@ -191,8 +191,9 @@ export async function runKronos(
 
           let next: LmState;
           if (st.len >= maxCtx) {
-            // Window is full: rebuild the cache from the most recent tokens of every sample.
-            const w = maxCtx - Math.min(REPRIME, maxCtx >> 2);
+            // Window is full: rebuild the cache from the most recent tokens of every sample. The exact mode
+            // keeps the full window, as the original does; the fast one leaves room for REPRIME steps.
+            const w = params.fastWindow ? maxCtx - Math.min(REPRIME, maxCtx >> 2) : maxCtx;
             const end = T + i + 1;
             const w1 = new Int32Array(b * w);
             const w2 = new Int32Array(b * w);

@@ -69,6 +69,12 @@ export interface KronosParams {
   topP: number;
   seed: number;
   clip?: number;
+  /**
+   * When context + horizon exceed the model window: false (default) slides the window one candle per
+   * step like the original Kronos, rebuilding the cache every step; true drops up to 64 candles at once
+   * and rebuilds rarely, which is much faster but lets the model see slightly less history.
+   */
+  fastWindow?: boolean;
 }
 
 /** Minimal surface of the onnxruntime API shared by onnxruntime-web and onnxruntime-node. */

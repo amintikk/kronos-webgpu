@@ -16,6 +16,7 @@ export interface Settings {
   topK: number;
   seed: number;
   randomSeed: boolean;
+  fastWindow: boolean;
   offset: number;
   autoPredict: boolean;
   bands: boolean;
@@ -50,6 +51,7 @@ export const DEFAULTS: Settings = {
   topK: 0,
   seed: 42,
   randomSeed: true,
+  fastWindow: false,
   offset: 0,
   autoPredict: false,
   bands: true,
@@ -68,7 +70,7 @@ export const DEFAULTS: Settings = {
 
 const KEY = 'kronos-settings';
 /** Settings that describe a forecast, and therefore travel in a shared link. */
-const SHARED: (keyof Settings)[] = ['source', 'symbol', 'interval', 'lookback', 'includeOpen', 'model', 'horizon', 'samples', 'temperature', 'topP', 'topK', 'seed', 'randomSeed', 'offset'];
+const SHARED: (keyof Settings)[] = ['source', 'symbol', 'interval', 'lookback', 'includeOpen', 'model', 'horizon', 'samples', 'temperature', 'topP', 'topK', 'seed', 'randomSeed', 'fastWindow', 'offset'];
 
 function coerce<K extends keyof Settings>(key: K, raw: unknown): Settings[K] | undefined {
   const def = DEFAULTS[key];

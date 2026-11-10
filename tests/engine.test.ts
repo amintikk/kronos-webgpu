@@ -21,7 +21,8 @@ function candles(): Candle[] {
   return k.map((r) => ({ t: +r[0]!, o: +r[1]!, h: +r[2]!, l: +r[3]!, c: +r[4]!, v: +r[5]!, a: +r[7]! }));
 }
 
-for (const [key, exactSteps] of [['mini', 24], ['small', 12]] as const) {
+// small runs past its 512-candle window (500 + 40), so this also covers the exact sliding window.
+for (const [key, exactSteps] of [['mini', 24], ['small', 40]] as const) {
   test(`kronos-${key} matches upstream greedy forecast`, { skip }, async () => {
     const manifest = JSON.parse(readFileSync(`${models}/manifest.json`, 'utf8')) as Manifest;
     const meta = manifest.models[key]!;
@@ -35,9 +36,9 @@ for (const [key, exactSteps] of [['mini', 24], ['small', 12]] as const) {
     };
     const ctx = all.slice(0, expected.T);
     const future = all.slice(expected.T, expected.T + expected.P).map((c) => c.t);
-    const params = { predLen: expected.P, samples: 3, batch: 2, temperature: 1, topK: 1, topP: 1, seed: 1 };
+    const params = { predLen: expected.P, samples: 2, batch: 2, temperature: 1, topK: 1, topP: 1, seed: 1 };
     const { paths } = await runKronos(lib, sess, meta, ctx, future, params);
-    assert.equal(paths.length, 3);
+    assert.equal(paths.length, 2);
     for (const path of paths) {
       for (let i = 0; i < exactSteps; i++) {
         for (let f = 0; f < 6; f++) {
@@ -85,4 +86,17 @@ test('sampling: greedy, top-k and top-p restrict the support', () => {
   assert.deepEqual([...seenP].sort(), [1]);
   assert.equal(seenAll.size, 5);
   assert.equal(makeRng(3)(), makeRng(3)());
+});
+
+test('kronos-small fast window: same start, then allowed to drift', { skip }, async () => {
+  const manifest = JSON.parse(readFileSync(`${models}/manifest.json`, 'utf8')) as Manifest;
+  const meta = manifest.models.small!;
+  const expected = JSON.parse(readFileSync(`${ref}/greedy.json`, 'utf8')).small as { T: number; P: number; pred: number[][] };
+  const all = candles();
+  const sess = { enc: await open(`${meta.tokenizer}_enc.onnx`), dec: await open(`${meta.tokenizer}_dec.onnx`), lm: await open(meta.lm.file), s2: await open(meta.s2.file) };
+  const future = all.slice(expected.T, expected.T + expected.P).map((c) => c.t);
+  const { paths } = await runKronos(lib, sess, meta, all.slice(0, expected.T), future, { predLen: expected.P, samples: 1, batch: 1, temperature: 1, topK: 1, topP: 1, seed: 1, fastWindow: true });
+  // Identical while context + generated candles fit in the 512-candle window (500 + 12).
+  for (let i = 0; i < 12; i++) assert.ok(Math.abs(paths[0]![i * 6 + 3]! / expected.pred[i]![3]! - 1) < 1e-4, `step ${i}`);
+  assert.ok(paths[0]!.every(Number.isFinite));
 });
