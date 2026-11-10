@@ -79,6 +79,13 @@
               <div><dt>Exportable</dt><dd>La predicción sale en CSV o JSON, el gráfico en PNG, y la configuración se comparte con un enlace.</dd></div>
             </dl>
           </div>
+          <figure class="shot">
+            <a href="/app/" aria-label="Abrir la app">
+              <img class="shot-light" src="/shots/app-light.jpg" width="1360" height="860" loading="lazy" alt="La app con una predicción de Kronos-mini sobre BTC/USDT: ajustes a la izquierda, gráfico con velas, abanico de escenarios y velas previstas, y resumen con el precio previsto y la probabilidad de subir." />
+              <img class="shot-dark" src="/shots/app-dark.jpg" width="1360" height="860" loading="lazy" alt="La app con una predicción de Kronos-mini sobre BTC/USDT, en tema oscuro." />
+            </a>
+            <figcaption>La app en un portátil: ajustes a la izquierda, el gráfico con la predicción y, debajo, el resumen y el backtest.</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -99,6 +106,21 @@
               <li><strong>Transformer.</strong> Lee la secuencia de fichas y da la probabilidad de cada ficha siguiente. Se elige una al azar según esas probabilidades, se añade y se repite.</li>
               <li><strong>Escenarios.</strong> Cada repetición da un futuro distinto. Lo que varían entre sí es la incertidumbre del modelo.</li>
             </ol>
+            <figure class="fig">
+              <div class="fig-frame" id="fig-tokens"></div>
+              <figcaption>
+                <strong>Paso 1, con datos reales.</strong> Las últimas 12 velas del ejemplo de arriba y las dos fichas que les asigna el tokenizador de Kronos-mini. Cada cuadro es un bit; toca o pasa el cursor
+                por una vela para ver sus valores y el número de cada ficha. Las velas parecidas comparten la ficha gruesa y se distinguen por la fina.
+              </figcaption>
+            </figure>
+            <figure class="fig">
+              <div class="fig-head"><span>Trayectorias</span><div class="segmented" id="fig-paths-controls" role="group" aria-label="Número de trayectorias"></div></div>
+              <div class="fig-frame" id="fig-paths"></div>
+              <figcaption>
+                <strong>Paso 3.</strong> Con una sola trayectoria no hay forma de saber cuánto fiarse de ella. Al repetir el muestreo aparece la zona donde cae la mayoría: la mediana y la banda que
+                deja fuera el 10 % más alto y el 10 % más bajo.
+              </figcaption>
+            </figure>
             <table class="plain">
               <thead><tr><th>Modelo</th><th>Parámetros</th><th>Contexto</th><th>Disponible</th></tr></thead>
               <tbody>
@@ -123,6 +145,14 @@
           <h2>Cómo está hecho</h2>
           <div class="block-body">
             <p class="intro">Kronos está pensado para ejecutarse con Python y PyTorch en un servidor. Para que funcione en un navegador hubo que rehacer la parte que genera las predicciones.</p>
+            <figure class="fig">
+              <div class="fig-head"><span>Fichas que procesa el transformer</span><b data-fig="work-ratio"></b></div>
+              <div class="fig-frame" id="fig-work"></div>
+              <figcaption>
+                Para la predicción de arriba: 400 velas de contexto, 48 velas previstas y 32 trayectorias. El original vuelve a leer todo el contexto en cada vela y en cada trayectoria; aquí se lee una
+                vez y cada paso añade una sola ficha. Cuenta trabajo, no tiempo: el tiempo real depende del equipo.
+              </figcaption>
+            </figure>
             <dl class="defs">
               <div><dt>Una ficha por paso</dt><dd>El código original vuelve a procesar todo el contexto en cada vela nueva. Aquí el modelo se exporta a ONNX con caché de claves y valores: el contexto se procesa una vez, se comparte entre todas las trayectorias y cada paso solo calcula una ficha.</dd></div>
               <div><dt>Comprobado contra el original</dt><dd>Los tests ejecutan el Kronos oficial en PyTorch y el motor de la web con las mismas velas. Sin azar, dan la misma predicción; las salidas internas difieren menos de 0,00004.</dd></div>
@@ -142,6 +172,15 @@
               Ningún modelo predice los mercados de forma fiable, y Kronos falla a menudo. Por eso la app mide cada predicción contra la opción más simple, suponer que el precio no se mueve. Si en
               el backtest no la mejora, en ese mercado y con ese intervalo el modelo no está aportando nada.
             </p>
+            <figure class="fig">
+              <div class="fig-stats" id="fig-backtest-stats"></div>
+              <div class="fig-frame" id="fig-backtest"></div>
+              <figcaption>
+                <strong>Un backtest real.</strong> Kronos-mini predijo BTC/USDT a 24 horas cada 12 horas <span data-fig="bt-range"></span>. Cada punto es una predicción: en las zonas sombreadas acertó la
+                dirección. Los puntos rellenos cayeron dentro de su banda del 80 % y los huecos, fuera. Las predicciones se quedan cerca de 0 mientras el precio real se mueve mucho más: acierta la dirección más
+                de la mitad de las veces, pero su banda es demasiado estrecha y su error es mayor que el de no predecir nada.
+              </figcaption>
+            </figure>
             <p>Los modelos grandes tardan en equipos modestos y en móviles. Kronos-large no está disponible porque sus pesos no son públicos.</p>
           </div>
         </div>

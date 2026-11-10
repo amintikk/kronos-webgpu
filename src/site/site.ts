@@ -5,6 +5,7 @@ import type { Candle } from '../engine/types.ts';
 import { fromKronos, summarize, type Forecast } from '../forecast.ts';
 import { fmtPct, fmtPrice } from '../ui/dom.ts';
 import { hydrateIcons, icon } from '../ui/icons.ts';
+import { backtestFigure, pathsFigure, tokensFigure, workFigure, type DemoData } from './figures.ts';
 
 const KEY = 'kronos-settings';
 
@@ -72,17 +73,11 @@ function wireNav(): void {
   });
 }
 
-interface Demo {
-  model: string;
-  candles: number[][];
-  times: number[];
-  paths: number[][];
-}
-
 async function demo(): Promise<void> {
   const el = document.getElementById('demo-chart');
   if (!el) return;
-  const d = (await (await fetch('/demo.json')).json()) as Demo;
+  const d = (await (await fetch('/demo.json')).json()) as DemoData;
+  figures(d);
   const candles: Candle[] = d.candles.map(([t, o, h, l, c, v]) => ({ t: t!, o: o!, h: h!, l: l!, c: c!, v: v!, a: 0 }));
   const anchor = candles[candles.length - 1]!;
   const stats = fromKronos({ paths: d.paths.map((p) => Float32Array.from(p)) }, d.times, anchor);
@@ -118,6 +113,22 @@ async function demo(): Promise<void> {
       return div;
     }),
   );
+}
+
+function figures(d: DemoData): void {
+  const run = (id: string, f: (host: HTMLElement) => void) => {
+    const host = document.getElementById(id);
+    if (!host) return;
+    try {
+      f(host);
+    } catch {
+      host.closest('figure')?.remove(); // a broken figure is worse than none
+    }
+  };
+  run('fig-tokens', (h) => tokensFigure(h, d));
+  run('fig-paths', (h) => pathsFigure(h, document.getElementById('fig-paths-controls')!, d));
+  run('fig-work', (h) => workFigure(h, d));
+  run('fig-backtest', (h) => backtestFigure(h, document.getElementById('fig-backtest-stats')!, d));
 }
 
 hydrateIcons();
