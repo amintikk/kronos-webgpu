@@ -1,17 +1,49 @@
 import type { FileMeta, Manifest } from './types.ts';
 
-export const MODELS_BASE = '/models/';
+/** Same-origin copy of the models; always present, used as fallback. */
+const LOCAL_BASE = '/models/';
+/** Where the weights are downloaded from (a CDN in production, see .env.production). */
+const MODEL_BASES = [...new Set([import.meta.env.VITE_MODELS_URL as string | undefined, LOCAL_BASE].filter((b): b is string => !!b))];
 const CACHE = 'kronos-models-v1';
 
-export const modelUrl = (f: FileMeta): string => `${MODELS_BASE}${f.file}?v=${f.sha256.slice(0, 12)}`;
+const query = (f: FileMeta): string => `${f.file}?v=${f.sha256.slice(0, 12)}`;
+/** Cache key: independent of which server the file came from. */
+export const modelUrl = (f: FileMeta): string => `${LOCAL_BASE}${query(f)}`;
 
 let manifest: Promise<Manifest> | null = null;
 export function loadManifest(): Promise<Manifest> {
-  manifest ??= fetch(`${MODELS_BASE}manifest.json`, { cache: 'no-cache' }).then((r) => {
+  // The catalogue is small and always comes from this site, so it matches the deployed code.
+  manifest ??= fetch(`${LOCAL_BASE}manifest.json`, { cache: 'no-cache' }).then((r) => {
     if (!r.ok) throw new Error(`No se pudo leer el catálogo de modelos (${r.status})`);
     return r.json() as Promise<Manifest>;
   });
   return manifest;
+}
+
+async function download(f: FileMeta, onBytes: (loaded: number, cached: boolean) => void): Promise<Uint8Array<ArrayBuffer>> {
+  let lastError: unknown;
+  for (const base of MODEL_BASES) {
+    try {
+      const res = await fetch(base + query(f), { mode: 'cors' });
+      if (!res.ok || !res.body) throw new Error(`No se pudo descargar ${f.file} (${res.status})`);
+      const buf = new Uint8Array(f.bytes);
+      const reader = res.body.getReader();
+      let loaded = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (loaded + value.byteLength > f.bytes) throw new Error(`${f.file}: tamaño inesperado`);
+        buf.set(value, loaded);
+        loaded += value.byteLength;
+        onBytes(loaded, false);
+      }
+      if (loaded !== f.bytes) throw new Error(`${f.file}: descarga incompleta (${loaded}/${f.bytes} bytes)`);
+      return buf;
+    } catch (e) {
+      lastError = e; // try the next server
+    }
+  }
+  throw lastError;
 }
 
 async function openCache(): Promise<Cache | null> {
@@ -61,20 +93,7 @@ export async function fetchModel(f: FileMeta, onBytes: (loaded: number, cached: 
     }
     await cache!.delete(url);
   }
-  const res = await fetch(url);
-  if (!res.ok || !res.body) throw new Error(`No se pudo descargar ${f.file} (${res.status})`);
-  const buf = new Uint8Array(f.bytes);
-  const reader = res.body.getReader();
-  let loaded = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (loaded + value.byteLength > f.bytes) throw new Error(`${f.file}: tamaño inesperado`);
-    buf.set(value, loaded);
-    loaded += value.byteLength;
-    onBytes(loaded, false);
-  }
-  if (loaded !== f.bytes) throw new Error(`${f.file}: descarga incompleta (${loaded}/${f.bytes} bytes)`);
+  const buf = await download(f, onBytes);
   try {
     await cache?.put(url, new Response(buf, { headers: { 'content-type': 'application/octet-stream', 'content-length': String(f.bytes) } }));
   } catch {

@@ -188,7 +188,7 @@
             <article class="card reveal"><h3><i data-icon="zap" data-size="18"></i>Una ficha por paso</h3><p>El bucle original vuelve a procesar todo el contexto en cada vela nueva. Exportamos el modelo a ONNX con una caché de claves y valores, así que cada paso procesa una sola ficha y el contexto se calcula una vez para todas las trayectorias.</p></article>
             <article class="card reveal"><h3><i data-icon="shield" data-size="18"></i>Verificado contra el original</h3><p>Los tests comparan el motor del navegador con el Kronos oficial en PyTorch: con decodificación determinista dan la misma predicción, y las salidas internas difieren menos de 0,00004.</p></article>
             <article class="card reveal"><h3><i data-icon="cpu" data-size="18"></i>WebGPU con respaldo</h3><p>Con WebGPU la caché se queda en la tarjeta gráfica entre pasos. Si el navegador no lo admite, el mismo modelo corre en la CPU con WebAssembly y varios hilos.</p></article>
-            <article class="card reveal"><h3><i data-icon="globe" data-size="18"></i>Una web estática</h3><p>No hay backend: solo archivos. La interfaz, el gráfico y el motor están hechos a medida, sin frameworks, y el modelo se sirve desde el mismo dominio.</p></article>
+            <article class="card reveal"><h3><i data-icon="globe" data-size="18"></i>Una web estática</h3><p>No hay backend: solo archivos. La interfaz, el gráfico y el motor están hechos a medida, sin frameworks, y los modelos se descargan de Cloudflare R2.</p></article>
           </div>
         </div>
       </section>

@@ -96,7 +96,9 @@ descarga, la caché (`?v=<sha>`) y los límites de cada modelo.
 ## Alojarlo
 
 Basta un servidor de archivos estáticos que sirva `dist/` y, en `/models/`, los archivos exportados
-con `manifest.json`. Para que WebAssembly use varios hilos, todas las respuestas deben llevar
+con `manifest.json`. Opcionalmente, los pesos pueden descargarse de un CDN: define `VITE_MODELS_URL`
+al compilar (ver `.env.production`); `manifest.json` se sigue leyendo de `/models/` y esa carpeta hace de
+respaldo si el CDN falla. `tools/upload_r2.py` sube los modelos a un bucket de Cloudflare R2. Para que WebAssembly use varios hilos, todas las respuestas deben llevar
 `Cross-Origin-Opener-Policy: same-origin` y `Cross-Origin-Embedder-Policy: require-corp`.
 `deploy/nginx.conf` es la configuración usada en producción.
 
