@@ -246,6 +246,25 @@ table,
 #btn-settings {
   display: none;
 }
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease);
+}
+@media (hover: hover) {
+  .lang-switch:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
 
 /* ------------------------------------------------------------ layout */
 .layout {

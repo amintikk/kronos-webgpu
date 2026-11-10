@@ -1,3 +1,4 @@
+import { t } from '../i18n.ts';
 import type { FileMeta, Manifest } from './types.ts';
 
 /** Same-origin copy of the models; always present, used as fallback. */
@@ -14,7 +15,7 @@ let manifest: Promise<Manifest> | null = null;
 export function loadManifest(): Promise<Manifest> {
   // The catalogue is small and always comes from this site, so it matches the deployed code.
   manifest ??= fetch(`${LOCAL_BASE}manifest.json`, { cache: 'no-cache' }).then((r) => {
-    if (!r.ok) throw new Error(`No se pudo leer el catálogo de modelos (${r.status})`);
+    if (!r.ok) throw new Error(t('No se pudo leer el catálogo de modelos ({s})', { s: r.status }));
     return r.json() as Promise<Manifest>;
   });
   return manifest;
@@ -25,19 +26,19 @@ async function download(f: FileMeta, onBytes: (loaded: number, cached: boolean) 
   for (const base of MODEL_BASES) {
     try {
       const res = await fetch(base + query(f), { mode: 'cors' });
-      if (!res.ok || !res.body) throw new Error(`No se pudo descargar ${f.file} (${res.status})`);
+      if (!res.ok || !res.body) throw new Error(t('No se pudo descargar {f} ({s})', { f: f.file, s: res.status }));
       const buf = new Uint8Array(f.bytes);
       const reader = res.body.getReader();
       let loaded = 0;
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
-        if (loaded + value.byteLength > f.bytes) throw new Error(`${f.file}: tamaño inesperado`);
+        if (loaded + value.byteLength > f.bytes) throw new Error(`${f.file}: ${t('tamaño inesperado')}`);
         buf.set(value, loaded);
         loaded += value.byteLength;
         onBytes(loaded, false);
       }
-      if (loaded !== f.bytes) throw new Error(`${f.file}: descarga incompleta (${loaded}/${f.bytes} bytes)`);
+      if (loaded !== f.bytes) throw new Error(`${f.file}: ${t('descarga incompleta ({a}/{b} bytes)', { a: loaded, b: f.bytes })}`);
       return buf;
     } catch (e) {
       lastError = e; // try the next server

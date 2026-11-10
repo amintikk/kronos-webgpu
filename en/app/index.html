@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kronos · Candlestick forecasting in your browser</title>
+    <meta name="description" content="Run time-series forecasting models (Kronos, Chronos-Bolt) on crypto right in your browser with WebGPU. No server: data and computation stay on your device." />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/app/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/app/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/app/" />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Apply the saved theme before first paint.
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/en/" title="Back to the home page">
+        <img src="/icon.svg" width="30" height="30" alt="" />
+        <strong>Kronos</strong>
+        <span class="tag">Forecasting in your browser</span>
+      </a>
+      <div class="top-right">
+        <span class="chip" id="backend-chip" title="Inference engine">Starting</span>
+        <a class="lang-switch" href="/app/" hreflang="es" lang="es" title="Usar la app en español">ES</a>
+        <button class="btn ghost icon" id="btn-settings" title="Settings" aria-label="Settings"><i data-icon="sliders" data-size="18"></i></button>
+        <button class="btn ghost icon" id="btn-share" title="Copy a link with these settings" aria-label="Share"><i data-icon="link" data-size="18"></i></button>
+        <button class="btn ghost icon" id="btn-theme" title="Switch theme" aria-label="Switch theme"></button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="side" id="controls" aria-label="Settings">
+        <div class="side-head">
+          <span>Settings</span>
+          <button class="btn ghost icon" id="btn-close-settings" aria-label="Close settings"><i data-icon="x" data-size="18"></i></button>
+        </div>
+      </aside>
+      <div class="backdrop" id="backdrop"></div>
+
+      <section class="stage">
+        <div class="bar">
+          <div class="title">
+            <h1><span id="pair">Loading</span><span id="live-dot" class="live" hidden>Live</span></h1>
+            <div class="price-row">
+              <span id="price" class="price">—</span>
+              <span id="trend" class="trend" hidden></span>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="btn-predict" class="btn primary"><i data-icon="play" data-size="13"></i>Forecast</button>
+            <button id="btn-cancel" class="btn danger" hidden><i data-icon="stop" data-size="12"></i><span class="lbl">Cancel</span></button>
+            <button id="btn-pin" class="btn" disabled aria-label="Pin" title="Keep this forecast as a dashed line to compare it with the next one"><i data-icon="pin"></i><span class="lbl">Pin</span></button>
+            <button id="btn-clear" class="btn icon" disabled title="Remove the forecasts from the chart" aria-label="Clear"><i data-icon="trash"></i></button>
+            <div class="menu">
+              <button id="btn-export" class="btn" disabled aria-haspopup="true" aria-expanded="false" aria-label="Export"><i data-icon="download"></i><span class="lbl">Export</span><i data-icon="chevronDown" class="chev"></i></button>
+              <div class="pop" id="export-menu" role="menu">
+                <button role="menuitem" data-export="csv"><i data-icon="file"></i>Forecast as CSV</button>
+                <button role="menuitem" data-export="json"><i data-icon="braces"></i>Forecast as JSON</button>
+                <button role="menuitem" data-export="png"><i data-icon="image"></i>Chart as PNG</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress" id="progress" hidden>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          <span id="progress-text"></span>
+        </div>
+        <div class="notice" id="notice" hidden role="alert"><i data-icon="alert"></i><span id="notice-text"></span></div>
+
+        <div class="chart-wrap card">
+          <div class="legend" id="legend"></div>
+          <div id="chart"></div>
+        </div>
+
+        <nav class="tabs" role="tablist">
+          <span class="tab-ind" id="tab-ind"></span>
+          <button role="tab" data-tab="summary" aria-selected="true">Summary</button>
+          <button role="tab" data-tab="backtest">Backtest</button>
+          <button role="tab" data-tab="table">Table</button>
+          <button role="tab" data-tab="models">Models</button>
+          <button role="tab" data-tab="log">Log</button>
+          <button role="tab" data-tab="about">About</button>
+        </nav>
+        <div class="tab-body">
+          <div id="tab-summary" class="tab"></div>
+          <div id="tab-backtest" class="tab" hidden></div>
+          <div id="tab-table" class="tab" hidden></div>
+          <div id="tab-models" class="tab" hidden></div>
+          <div id="tab-log" class="tab" hidden><pre id="log" class="card"></pre></div>
+          <div id="tab-about" class="tab" hidden>
+            <div class="prose card">
+              <h2>What this is</h2>
+              <p>
+                A tool to run time-series forecasting models <strong>in your own browser</strong>. Model weights are downloaded once and kept in the browser cache; candles are requested
+                directly from the chosen exchange. No data goes through an intermediate server.
+              </p>
+              <h2>Models</h2>
+              <ul>
+                <li>
+                  <a href="https://github.com/shiyu-coder/Kronos" target="_blank" rel="noopener">Kronos</a> (MIT): a foundation model trained on OHLCV candles from more than 45 markets. It
+                  generates full candles by sampling several possible paths; the median and the bands come from them.
+                </li>
+                <li>
+                  <a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">Chronos-Bolt</a> (Apache-2.0): a general-purpose model from Amazon. It forecasts
+                  the close only, in one pass, as quantiles from 10 % to 90 %. Useful as a second opinion.
+                </li>
+              </ul>
+              <h2>Reading the chart</h2>
+              <ul>
+                <li>The blue line is the forecast <strong>median</strong>; the bands are the ranges between percentiles (half and 80 % of the scenarios).</li>
+                <li>Hollow candles are the mean of Kronos’ paths. The thin lines are individual paths.</li>
+                <li>With “Candles back” above 0, the forecast starts in the past and is compared with what happened next.</li>
+              </ul>
+              <h2>Warning</h2>
+              <p>
+                Markets cannot be forecast reliably. These outputs are statistical scenarios from a model, not investment advice. Check the backtest before trusting a forecast: a skill close to 0
+                means the model does no better than assuming the price stays put.
+              </p>
+              <h2>Code and notices</h2>
+              <p>
+                The project is open source: <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">github.com/amintikk/kronos-webgpu</a>. More on the
+                <a href="/en/">home page</a>, the <a href="/en/legal-notice/">legal notice</a>, the <a href="/en/privacy/">privacy policy</a>, the <a href="/en/terms/">terms of use</a> and
+                the <a href="/en/licenses/">licenses</a>.
+              </p>
+              <p class="muted">Inference with ONNX Runtime Web. The chart is custom-built: drag to move, scroll or pinch to zoom and double-click to return to the forecast.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

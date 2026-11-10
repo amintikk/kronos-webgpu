@@ -1,3 +1,5 @@
+import { locale } from '../i18n.ts';
+
 type Child = Node | string | number | null | undefined | false;
 
 /** Tiny DOM builder. Text always goes through text nodes, never innerHTML. */
@@ -20,21 +22,21 @@ export function fmtPrice(p: number): string {
   if (!Number.isFinite(p)) return '—';
   const a = Math.abs(p);
   const d = a >= 1000 ? 2 : a >= 10 ? 3 : a >= 1 ? 4 : a >= 0.01 ? 6 : 8;
-  return p.toLocaleString('es-ES', { minimumFractionDigits: Math.min(d, 2), maximumFractionDigits: d });
+  return p.toLocaleString(locale, { minimumFractionDigits: Math.min(d, 2), maximumFractionDigits: d });
 }
 
 export function fmtPct(p: number, digits = 2): string {
   if (!Number.isFinite(p)) return '—';
   if (Math.abs(p) < 0.5 * 10 ** -digits) p = 0; // no "-0,00 %"
-  return `${p > 0 ? '+' : ''}${p.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
+  return `${p > 0 ? '+' : ''}${p.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
 }
 
 export function fmtNum(n: number, digits = 0): string {
-  return Number.isFinite(n) ? n.toLocaleString('es-ES', { maximumFractionDigits: digits }) : '—';
+  return Number.isFinite(n) ? n.toLocaleString(locale, { maximumFractionDigits: digits }) : '—';
 }
 
 export function fmtCompact(n: number): string {
-  return Number.isFinite(n) ? n.toLocaleString('es-ES', { notation: 'compact', maximumFractionDigits: 2 }) : '—';
+  return Number.isFinite(n) ? n.toLocaleString(locale, { notation: 'compact', maximumFractionDigits: 2 }) : '—';
 }
 
 export function fmtBytes(b: number): string {
@@ -42,7 +44,7 @@ export function fmtBytes(b: number): string {
 }
 
 export function fmtTime(ms: number, local: boolean, withYear = false): string {
-  return new Date(ms).toLocaleString('es-ES', {
+  return new Date(ms).toLocaleString(locale, {
     timeZone: local ? undefined : 'UTC',
     year: withYear ? 'numeric' : undefined,
     month: 'short',

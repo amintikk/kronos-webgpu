@@ -1,3 +1,4 @@
+import { locale, t } from './i18n.ts';
 import type { Candle } from './engine/types.ts';
 import type { Forecast } from './forecast.ts';
 import { fmtCompact, fmtPct, fmtPrice, h } from './ui/dom.ts';
@@ -60,7 +61,7 @@ interface Plot {
  */
 export class ForecastChart {
   private root: HTMLElement;
-  private canvas = h('canvas', { class: 'chart-canvas', tabIndex: 0, 'aria-label': 'Gráfico de velas y predicción' });
+  private canvas = h('canvas', { class: 'chart-canvas', tabIndex: 0, 'aria-label': t('Gráfico de velas y predicción') });
   private overlay = h('canvas', { class: 'chart-overlay' });
   private tip = h('div', { class: 'chart-tip' });
   private g: CanvasRenderingContext2D;
@@ -352,7 +353,7 @@ export class ForecastChart {
 
   private fmtTick(p: number): string {
     const d = this.tickStep >= 1 ? 0 : Math.min(8, Math.ceil(-Math.log10(this.tickStep) - 1e-9));
-    return p.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+    return p.toLocaleString(locale, { minimumFractionDigits: d, maximumFractionDigits: d });
   }
 
   private priceTicks(): number[] {
@@ -380,9 +381,9 @@ export class ForecastChart {
     const midnight = d.getUTCHours() === 0 && d.getUTCMinutes() === 0;
     if (step >= 86400e3 || midnight) {
       const first = d.getUTCDate() === 1 && d.getUTCMonth() === 0;
-      return { text: d.toLocaleDateString('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: first || step >= 91 * 86400e3 ? 'numeric' : undefined }), strong: true };
+      return { text: d.toLocaleDateString(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', year: first || step >= 91 * 86400e3 ? 'numeric' : undefined }), strong: true };
     }
-    return { text: d.toLocaleTimeString('es-ES', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }), strong: false };
+    return { text: d.toLocaleTimeString(locale, { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }), strong: false };
   }
 
   private tag(g: CanvasRenderingContext2D, py: number, text: string, bg: string, ink = '#ffffff'): void {
@@ -638,7 +639,7 @@ export class ForecastChart {
       g.fillStyle = alpha(c.forecast, 0.95);
       g.textAlign = 'left';
       g.textBaseline = 'top';
-      const label = `Predicción · ${f.label}`;
+      const label = `${t('Predicción')} · ${f.label}`;
       const room = Math.min(endX, plot.right) - anchorX - 20;
       if (room > g.measureText(label).width) g.fillText(label, anchorX + 10, 10);
       else if (room > g.measureText('Predicción').width) g.fillText('Predicción', anchorX + 10, 10);
@@ -754,7 +755,7 @@ export class ForecastChart {
     }
 
     // Time label on the axis.
-    const when = new Date(t + this.shiftMs).toLocaleString('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const when = new Date(t + this.shiftMs).toLocaleString(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     og.font = `600 11px ${FONT}`;
     const tw = og.measureText(when).width + 14;
     const tx = Math.max(2, Math.min(right - tw - 2, px - tw / 2));
@@ -788,12 +789,12 @@ export class ForecastChart {
         h(
           'div',
           { class: 'tip-grid' },
-          row('Apertura', fmtPrice(candle.o)),
-          row('Máximo', fmtPrice(candle.h)),
-          row('Mínimo', fmtPrice(candle.l)),
-          row('Cierre', fmtPrice(candle.c)),
-          row('Variación', fmtPct(ch), ch >= 0 ? 'up' : 'down'),
-          row('Volumen', fmtCompact(candle.v)),
+          row(t('Apertura'), fmtPrice(candle.o)),
+          row(t('Máximo'), fmtPrice(candle.h)),
+          row(t('Mínimo'), fmtPrice(candle.l)),
+          row(t('Cierre'), fmtPrice(candle.c)),
+          row(t('Variación'), fmtPct(ch), ch >= 0 ? 'up' : 'down'),
+          row(t('Volumen'), fmtCompact(candle.v)),
         ),
       );
     }
@@ -801,15 +802,15 @@ export class ForecastChart {
       const pc = (lv: number) => `p${Math.round(lv * 100)}`;
       const med = f.q[f.median]![step]!;
       parts.push(
-        h('div', { class: 'tip-sub' }, h('i', {}), `Predicción · vela ${step + 1} de ${f.times.length}`),
+        h('div', { class: 'tip-sub' }, h('i', {}), t('Predicción · vela {a} de {b}', { a: step + 1, b: f.times.length })),
         h(
           'div',
           { class: 'tip-grid' },
-          row('Mediana', fmtPrice(med)),
-          row('Desde el inicio', fmtPct((med / f.anchor.c - 1) * 100), med >= f.anchor.c ? 'up' : 'down'),
+          row(t('Mediana'), fmtPrice(med)),
+          row(t('Desde el inicio'), fmtPct((med / f.anchor.c - 1) * 100), med >= f.anchor.c ? 'up' : 'down'),
           row(`${pc(f.levels[f.inner.lo]!)}–${pc(f.levels[f.inner.hi]!)}`, `${fmtPrice(f.q[f.inner.lo]![step]!)} – ${fmtPrice(f.q[f.inner.hi]![step]!)}`, 'wide'),
           row(`${pc(f.levels[f.outer.lo]!)}–${pc(f.levels[f.outer.hi]!)}`, `${fmtPrice(f.q[f.outer.lo]![step]!)} – ${fmtPrice(f.q[f.outer.hi]![step]!)}`, 'wide'),
-          candle ? row('Error de la mediana', fmtPct((med / candle.c - 1) * 100), 'wide') : null,
+          candle ? row(t('Error de la mediana'), fmtPct((med / candle.c - 1) * 100), 'wide') : null,
         ),
       );
     }

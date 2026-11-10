@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Legal notice · Kronos WebGPU</title>
+    <meta name="description" content="Details of the owner of Kronos WebGPU and general conditions for using the site." />
+    <link rel="canonical" href="https://kronos.aminox.dev/en/legal-notice/" />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/aviso-legal/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/legal-notice/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/legal-notice/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-en-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Legal notice</h1>
+        <p class="updated">Last updated: 10 November 2026</p>
+
+        <p>As required by Spanish Law 34/2002 on information society services and e-commerce (LSSI), these are the details of the owner of this website:</p>
+        <div class="card">
+          <p><strong>Owner:</strong> Amin Tahtah Toumi</p>
+          <p><strong>Email:</strong> <a href="mailto:amintahtahtoumi@gmail.com">amintahtahtoumi@gmail.com</a></p>
+          <p><strong>Website:</strong> kronos.aminox.dev</p>
+        </div>
+        <h2>Purpose</h2>
+        <p>
+          Kronos WebGPU is a free, non-profit, open-source personal project. It offers a web tool that runs time-series forecasting models in the user’s own browser. No products or services
+          are sold, there is no advertising and no sign-up is needed.
+        </p>
+        <h2>Using the site</h2>
+        <p>Access is free. By using the site you agree to do so lawfully and not to harm how it works. The detailed conditions for the tool are in the <a href="/en/terms/">terms of use</a>, and how data is handled in the <a href="/en/privacy/">privacy policy</a>.</p>
+        <h2>Not financial advice</h2>
+        <p>
+          The content and results of this site are for informational, educational and experimental purposes. They are not financial, investment, tax or any other kind of advice, nor a
+          recommendation to buy or sell any asset. The owner is not an entity authorised to provide investment services.
+        </p>
+        <h2>Intellectual property</h2>
+        <p>
+          The Kronos WebGPU code is published under the MIT license on <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">GitHub</a>. Third-party models, libraries
+          and fonts belong to their authors and are used under their licenses, listed on the <a href="/en/licenses/">licenses</a> page. Exchange and cryptocurrency names are trademarks of their owners
+          and are used only to identify them; this project is not affiliated with them.
+        </p>
+        <h2>Third-party links and services</h2>
+        <p>The site links to third-party websites and the tool queries public exchange data from your browser. The owner does not control and is not responsible for their content, availability or terms.</p>
+        <h2>Liability</h2>
+        <p>
+          Care is taken that the information and the tool work correctly, but they may contain errors, interruptions or outdated data. To the extent permitted by law, the owner is not liable for
+          damages or losses arising from the use of the site or from decisions based on its results.
+        </p>
+        <h2>Governing law</h2>
+        <p>This legal notice is governed by Spanish law.</p>
+      </div>
+    </main>
+    <!--#footer-en-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

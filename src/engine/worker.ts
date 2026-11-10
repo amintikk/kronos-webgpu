@@ -1,4 +1,5 @@
 /// <reference lib="webworker" />
+import { setLang, t } from '../i18n.ts';
 import { runChronos } from './chronos.ts';
 import { runKronos, type KronosSessions } from './kronos.ts';
 import type { Backend, Request, Response } from './protocol.ts';
@@ -48,13 +49,13 @@ async function load(id: number, family: string, key: string): Promise<void> {
   if (family === 'chronos') {
     if (chronos.has(key)) return;
     const meta = manifest.chronos[key];
-    if (!meta) throw new Error(`Modelo desconocido: ${key}`);
+    if (!meta) throw new Error(t('Modelo desconocido: {k}', { k: key }));
     chronos.set(key, await session(id, meta.model));
     return;
   }
   if (kronos.has(key)) return;
   const meta = manifest.models[key];
-  if (!meta) throw new Error(`Modelo desconocido: ${key}`);
+  if (!meta) throw new Error(t('Modelo desconocido: {k}', { k: key }));
   let tok = tokenizers.get(meta.tokenizer);
   if (!tok) {
     const t = manifest.tokenizers[meta.tokenizer]!;
@@ -108,5 +109,6 @@ ctx.onmessage = (ev: MessageEvent<Request>) => {
     return;
   }
   // One job at a time: the sessions share one device and one WASM heap.
+  if (m.type === 'init') setLang(m.lang);
   queue = queue.then(() => (m.type === 'init' ? init(m.backend, m.threads) : handle(m)));
 };

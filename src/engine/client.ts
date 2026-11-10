@@ -1,3 +1,4 @@
+import { lang, t } from '../i18n.ts';
 import type { ChronosResult } from './chronos.ts';
 import type { KronosResult } from './kronos.ts';
 import type { Backend, Family, Request, Response } from './protocol.ts';
@@ -29,8 +30,8 @@ export class Engine {
     this.worker = worker;
     this.ready = new Promise((resolve, reject) => {
       worker.onerror = (e) => {
-        reject(new Error(e.message || 'No se pudo iniciar el motor de inferencia'));
-        this.failAll(new Error(e.message || 'El motor de inferencia se detuvo'));
+        reject(new Error(e.message || t('No se pudo iniciar el motor de inferencia')));
+        this.failAll(new Error(e.message || t('El motor de inferencia se detuvo')));
       };
       worker.onmessage = (ev: MessageEvent<Response>) => {
         const m = ev.data;
@@ -50,14 +51,14 @@ export class Engine {
         }
       };
     });
-    this.send({ type: 'init', backend, threads });
+    this.send({ type: 'init', backend, threads, lang });
     return this.ready;
   }
 
   stop(): void {
     this.worker?.terminate();
     this.worker = null;
-    this.failAll(new CancelError('Motor reiniciado'));
+    this.failAll(new CancelError(t('Motor reiniciado')));
   }
 
   private failAll(e: Error): void {
@@ -70,7 +71,7 @@ export class Engine {
   }
 
   private async call<T>(msg: Job, events?: Partial<EngineEvents>): Promise<{ result: T; ms: number }> {
-    if (!this.ready) throw new Error('Motor no iniciado');
+    if (!this.ready) throw new Error(t('Motor no iniciado'));
     await this.ready;
     const id = this.nextId++;
     return new Promise((resolve, reject) => {

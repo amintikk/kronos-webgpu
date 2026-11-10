@@ -1,3 +1,4 @@
+import { t } from '../i18n.ts';
 import { makeRng, sampleToken } from './sampling.ts';
 import { CancelledError } from './types.ts';
 import type { Candle, KronosMeta, KronosParams, OrtLike, OrtSession, OrtTensor, Progress } from './types.ts';
@@ -63,8 +64,8 @@ export async function runKronos(
   const P = params.predLen;
   const clip = params.clip ?? 5;
   const maxCtx = meta.max_context;
-  if (T < 2) throw new Error('Se necesitan al menos 2 velas de contexto');
-  if (futureTimes.length !== P) throw new Error('futureTimes no coincide con el horizonte');
+  if (T < 2) throw new Error(t('Se necesitan al menos 2 velas de contexto'));
+  if (futureTimes.length !== P) throw new Error(t('futureTimes no coincide con el horizonte'));
 
   // Per-column z-score over the context, clipped, exactly as KronosPredictor.predict.
   const mean = new Float64Array(FEATS);

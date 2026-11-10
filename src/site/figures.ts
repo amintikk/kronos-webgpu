@@ -1,6 +1,7 @@
 // Figures for the landing page. All of them draw precomputed results from public/demo.json
 // (produced by tools/make_demo.ts with the same engine as the app). Colours come from CSS
 // classes, so the figures follow the theme without re-rendering.
+import { locale, t } from '../i18n.ts';
 import { fmtPct, fmtPrice } from '../ui/dom.ts';
 
 export interface DemoData {
@@ -27,7 +28,7 @@ function svg(width: number, height: number, label: string): SVGSVGElement {
   return el('svg', { viewBox: `0 0 ${width} ${height}`, width, height, role: 'img', 'aria-label': label, class: 'fig-svg' });
 }
 
-const fmtDate = (t: number) => new Date(t).toLocaleString('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const fmtDate = (t: number) => new Date(t).toLocaleString(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 /** Redraw on width changes; figures are cheap to rebuild. */
 function responsive(host: HTMLElement, draw: (width: number) => void): void {
@@ -96,20 +97,20 @@ export function tokensFigure(host: HTMLElement, d: DemoData): void {
     const s2Top = s1Top + stackH + 22;
     const idsY = s2Top + stackH + 18;
     const H = idsY + (colW >= 34 ? 8 : -10);
-    const s = svg(W, H, 'Las últimas 12 velas del ejemplo y las dos fichas de 10 bits en que las convierte el tokenizador de Kronos');
+    const s = svg(W, H, t('Las últimas 12 velas del ejemplo y las dos fichas de 10 bits en que las convierte el tokenizador de Kronos'));
     const lo = Math.min(...items.map((i) => i.c[3]!));
     const hi = Math.max(...items.map((i) => i.c[2]!));
     const y = (p: number) => top + ((hi - p) / (hi - lo || 1)) * candleH;
     if (labelW) {
-      for (const [text, yy] of [['Vela', top + candleH / 2], ['Ficha gruesa', s1Top + stackH / 2], ['Ficha fina', s2Top + stackH / 2]] as const) {
+      for (const [text, yy] of [[t('Vela'), top + candleH / 2], [t('Ficha gruesa'), s1Top + stackH / 2], [t('Ficha fina'), s2Top + stackH / 2]] as const) {
         s.append(el('text', { x: 0, y: yy, class: 'fig-label', 'dominant-baseline': 'middle' }, text));
       }
       s.append(el('text', { x: 0, y: s1Top + stackH / 2 + 16, class: 'fig-note', 'dominant-baseline': 'middle' }, '10 bits'));
       s.append(el('text', { x: 0, y: s2Top + stackH / 2 + 16, class: 'fig-note', 'dominant-baseline': 'middle' }, '10 bits'));
     } else {
       // Narrow screens: no label column, so name each row just above it.
-      s.append(el('text', { x: 0, y: s1Top - 9, class: 'fig-note' }, 'Ficha gruesa · 10 bits'));
-      s.append(el('text', { x: 0, y: s2Top - 8, class: 'fig-note' }, 'Ficha fina · 10 bits'));
+      s.append(el('text', { x: 0, y: s1Top - 9, class: 'fig-note' }, t('Ficha gruesa · 10 bits')));
+      s.append(el('text', { x: 0, y: s2Top - 8, class: 'fig-note' }, t('Ficha fina · 10 bits')));
     }
     items.forEach((it, k) => {
       const cx = labelW + colW * (k + 0.5);
@@ -136,11 +137,11 @@ export function tokensFigure(host: HTMLElement, d: DemoData): void {
         const r = (g.firstChild as SVGRectElement).getBoundingClientRect();
         const f = frame.getBoundingClientRect();
         tip.show(r.left - f.left + r.width / 2, top + candleH / 2, [
-          ['Apertura', fmtPrice(o)],
-          ['Cierre', fmtPrice(c)],
-          ['Máx. / mín.', `${fmtPrice(h)} / ${fmtPrice(l)}`],
-          ['Ficha gruesa', String(it.s1)],
-          ['Ficha fina', String(it.s2)],
+          [t('Apertura'), fmtPrice(o)],
+          [t('Cierre'), fmtPrice(c)],
+          [t('Máx. / mín.'), `${fmtPrice(h)} / ${fmtPrice(l)}`],
+          [t('Ficha gruesa'), String(it.s1)],
+          [t('Ficha fina'), String(it.s2)],
         ], fmtDate(it.t));
       });
       g.addEventListener('pointerleave', () => tip.hide());
@@ -182,7 +183,7 @@ export function pathsFigure(host: HTMLElement, controls: HTMLElement, d: DemoDat
     const steps = history.length + P;
     const x = (i: number) => pad.l + (i / (steps - 1)) * (W - pad.l - pad.r);
     const y = (p: number) => pad.t + ((hi - p) / (hi - lo)) * (H - pad.t - pad.b);
-    const s = svg(W, H, `Precio de cierre y ${shown} ${shown === 1 ? 'trayectoria prevista' : 'trayectorias previstas'}, con su mediana y la banda del 80 %`);
+    const s = svg(W, H, t(shown === 1 ? 'Precio de cierre y 1 trayectoria prevista' : 'Precio de cierre y {n} trayectorias previstas, con su mediana y la banda del 80 %', { n: shown }));
     const a = history.length - 1;
     const line = (vals: number[], from: number) => vals.map((v, i) => `${i ? 'L' : 'M'}${x(from + i).toFixed(1)},${y(v).toFixed(1)}`).join('');
     s.append(el('line', { x1: x(a), x2: x(a), y1: 0, y2: H, class: 'fig-divider' }));
@@ -198,10 +199,10 @@ export function pathsFigure(host: HTMLElement, controls: HTMLElement, d: DemoDat
     if (shown > 1) {
       const median = Array.from({ length: P + 1 }, (_, k) => quantile(pts(k), 0.5));
       s.append(el('path', { d: line(median, a), class: 'fig-median', pathLength: 1 }));
-      s.append(el('text', { x: x(a + P) + 8, y: y(median[P]!), class: 'fig-label accent', 'dominant-baseline': 'middle' }, 'mediana'));
+      s.append(el('text', { x: x(a + P) + 8, y: y(median[P]!), class: 'fig-label accent', 'dominant-baseline': 'middle' }, t('mediana')));
     }
-    s.append(el('text', { x: x(a) - 8, y: H - 4, class: 'fig-note', 'text-anchor': 'end' }, 'pasado'));
-    s.append(el('text', { x: x(a) + 8, y: H - 4, class: 'fig-note' }, 'previsto'));
+    s.append(el('text', { x: x(a) - 8, y: H - 4, class: 'fig-note', 'text-anchor': 'end' }, t('pasado')));
+    s.append(el('text', { x: x(a) + 8, y: H - 4, class: 'fig-note' }, t('previsto')));
     frame.prepend(s);
   };
 
@@ -209,7 +210,7 @@ export function pathsFigure(host: HTMLElement, controls: HTMLElement, d: DemoDat
     ...counts.map((n) => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.textContent = n === 1 ? '1 trayectoria' : `${n}`;
+      b.textContent = n === 1 ? t('1 trayectoria') : `${n}`;
       b.setAttribute('aria-pressed', String(n === shown));
       b.addEventListener('click', () => {
         shown = n;
@@ -237,7 +238,7 @@ export function workFigure(host: HTMLElement, d: DemoData): void {
   // Here: the context once, shared by all samples, then one token per sample and step.
   const ours = T + (P - 1) * S;
   const rows = [
-    { label: 'Kronos original', value: upstream, cls: 'bar-muted' },
+    { label: t('Kronos original'), value: upstream, cls: 'bar-muted' },
     { label: 'Kronos WebGPU', value: ours, cls: 'bar-accent' },
   ];
   responsive(host, (W) => {
@@ -245,7 +246,7 @@ export function workFigure(host: HTMLElement, d: DemoData): void {
     const labelW = W >= 560 ? 150 : 0;
     const rowH = labelW ? 44 : 62;
     const H = rows.length * rowH;
-    const s = svg(W, H, `Fichas procesadas para una predicción: ${upstream.toLocaleString('es-ES')} en el original frente a ${ours.toLocaleString('es-ES')}`);
+    const s = svg(W, H, t('Fichas procesadas para una predicción: {a} en el original frente a {b}', { a: upstream.toLocaleString(locale), b: ours.toLocaleString(locale) }));
     const valueW = 110;
     const max = W - labelW - valueW;
     rows.forEach((r, k) => {
@@ -254,12 +255,12 @@ export function workFigure(host: HTMLElement, d: DemoData): void {
       else s.append(el('text', { x: 0, y: y0 - 10, class: 'fig-label' }, r.label));
       const w = Math.max(3, (r.value / upstream) * max);
       s.append(el('rect', { x: labelW, y: y0, width: w, height: 24, rx: 4, class: `${r.cls} fig-bar`, style: `--i:${k}` }));
-      s.append(el('text', { x: labelW + w + 10, y: y0 + 12, class: 'fig-value', 'dominant-baseline': 'middle' }, r.value.toLocaleString('es-ES')));
+      s.append(el('text', { x: labelW + w + 10, y: y0 + 12, class: 'fig-value', 'dominant-baseline': 'middle' }, r.value.toLocaleString(locale)));
     });
     host.prepend(s);
   });
   const ratio = document.querySelector<HTMLElement>('[data-fig="work-ratio"]');
-  if (ratio) ratio.textContent = `${Math.round(upstream / ours)} veces menos`;
+  if (ratio) ratio.textContent = t('{n} veces menos', { n: Math.round(upstream / ours) });
 }
 
 // ------------------------------------------------------------ 4. backtest
@@ -271,12 +272,12 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
   const mae = w.reduce((s, r) => s + Math.abs(r.median - r.actual), 0);
   const naive = w.reduce((s, r) => s + Math.abs(r.last - r.actual), 0);
   const skill = (1 - mae / naive) * 100;
-  const fmtDay = (t: number) => new Date(t).toLocaleDateString('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'long' });
+  const fmtDay = (t: number) => new Date(t).toLocaleDateString(locale, { timeZone: 'UTC', day: 'numeric', month: 'long' });
   stats.replaceChildren(
     ...([
-      ['Dirección acertada', `${hits} de ${w.length}`],
-      ['Dentro de la banda del 80 %', `${inside} de ${w.length}`],
-      ['Error frente a «no se mueve»', skill >= 0 ? `${Math.round(skill)} % menor` : `${Math.round(-skill)} % mayor`],
+      [t('Dirección acertada'), t('{a} de {b}', { a: hits, b: w.length })],
+      [t('Dentro de la banda del 80 %'), t('{a} de {b}', { a: inside, b: w.length })],
+      [t('Error frente a «no se mueve»'), skill >= 0 ? t('{n} % menor', { n: Math.round(skill) }) : t('{n} % mayor', { n: Math.round(-skill) })],
     ] as const).map(([k, v]) => {
       const div = document.createElement('div');
       const a = document.createElement('span');
@@ -288,7 +289,7 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
     }),
   );
   const range = document.querySelector<HTMLElement>('[data-fig="bt-range"]');
-  if (range) range.textContent = `entre el ${fmtDay(w[0]!.t)} y el ${fmtDay(w[w.length - 1]!.t + d.backtest.horizon * 3600e3)}`;
+  if (range) range.textContent = t('entre el {a} y el {b}', { a: fmtDay(w[0]!.t), b: fmtDay(w[w.length - 1]!.t + d.backtest.horizon * 3600e3) });
 
   const tip = tooltip(host);
   responsive(host, (W) => {
@@ -298,7 +299,7 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
     const ext = Math.ceil(Math.max(...w.flatMap((r) => [Math.abs(r.pred), Math.abs(r.real)])) * 1.1 * 2) / 2;
     const x = (v: number) => pad.l + ((v + ext) / (2 * ext)) * (W - pad.l - pad.r);
     const y = (v: number) => pad.t + ((ext - v) / (2 * ext)) * (H - pad.t - pad.b);
-    const s = svg(W, H, `Variación prevista frente a variación real en ${w.length} predicciones a 24 horas`);
+    const s = svg(W, H, t('Variación prevista frente a variación real en {n} predicciones a 24 horas', { n: w.length }));
     // Quadrants where the predicted direction was right.
     s.append(el('rect', { x: x(0), y: y(ext), width: x(ext) - x(0), height: y(0) - y(ext), class: 'quad-right' }));
     s.append(el('rect', { x: x(-ext), y: y(0), width: x(0) - x(-ext), height: y(-ext) - y(0), class: 'quad-right' }));
@@ -306,13 +307,13 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
     for (let v = -Math.floor(ext / step) * step; v <= ext + 1e-9; v += step) {
       s.append(el('line', { x1: x(v), x2: x(v), y1: pad.t, y2: H - pad.b, class: v === 0 ? 'fig-axis' : 'fig-grid' }));
       s.append(el('line', { x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), class: v === 0 ? 'fig-axis' : 'fig-grid' }));
-      const lab = `${v > 0 ? '+' : ''}${v.toLocaleString('es-ES')} %`;
+      const lab = `${v > 0 ? '+' : ''}${v.toLocaleString(locale)} %`;
       s.append(el('text', { x: x(v), y: H - pad.b + 16, class: 'fig-note', 'text-anchor': 'middle' }, lab));
       s.append(el('text', { x: pad.l - 8, y: y(v), class: 'fig-note', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, lab));
     }
     s.append(el('line', { x1: x(-ext), y1: y(-ext), x2: x(ext), y2: y(ext), class: 'fig-diagonal' }));
-    s.append(el('text', { x: (pad.l + W - pad.r) / 2, y: H - 4, class: 'fig-label', 'text-anchor': 'middle' }, 'Variación prevista (mediana)'));
-    const yl = el('text', { x: 0, y: 12, class: 'fig-label' }, 'Variación real');
+    s.append(el('text', { x: (pad.l + W - pad.r) / 2, y: H - 4, class: 'fig-label', 'text-anchor': 'middle' }, t('Variación prevista (mediana)')));
+    const yl = el('text', { x: 0, y: 12, class: 'fig-label' }, t('Variación real'));
     s.append(yl);
     for (const r of w) {
       const g = el('g', { class: 'fig-dot', style: `--i:${w.indexOf(r)}` });
@@ -320,11 +321,11 @@ export function backtestFigure(host: HTMLElement, stats: HTMLElement, d: DemoDat
       g.append(el('circle', { cx: x(r.pred), cy: y(r.real), r: 5.5, class: r.inside ? 'dot-in' : 'dot-out' }));
       g.addEventListener('pointerenter', () => {
         tip.show(x(r.pred), y(r.real), [
-          ['Último cierre', fmtPrice(r.last)],
-          ['Previsto', `${fmtPrice(r.median)} (${fmtPct(r.pred)})`],
-          ['Real', `${fmtPrice(r.actual)} (${fmtPct(r.real)})`],
-          ['Banda del 80 %', `${fmtPrice(r.p10)} – ${fmtPrice(r.p90)}`],
-        ], `Desde ${fmtDate(r.t)}`);
+          [t('Último cierre'), fmtPrice(r.last)],
+          [t('Previsto'), `${fmtPrice(r.median)} (${fmtPct(r.pred)})`],
+          [t('Real'), `${fmtPrice(r.actual)} (${fmtPct(r.real)})`],
+          [t('Banda del 80 %'), `${fmtPrice(r.p10)} – ${fmtPrice(r.p90)}`],
+        ], t('Desde {d}', { d: fmtDate(r.t) }));
       });
       g.addEventListener('pointerleave', () => tip.hide());
       s.append(g);

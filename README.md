@@ -20,6 +20,14 @@ directamente a la bolsa.
 | `/app/` | `app/index.html`, `src/main.ts` | La herramienta |
 | `/aviso-legal/`, `/privacidad/`, `/terminos/`, `/licencias/` | `*/index.html` | Textos legales |
 
+Cada página existe en español (`/`) y en inglés (`/en/`, mismas rutas traducidas: `/en/app/`,
+`/en/legal-notice/`, `/en/privacy/`, `/en/terms/`, `/en/licenses/`). Son HTML estático por idioma, con
+`hreflang` cruzado (x-default en inglés), canonical propio y sitemap con alternativas. El selector de
+idioma enlaza a la página equivalente, que Vite toma de esas etiquetas al compilar.
+
+Los textos de la app y de las figuras pasan por `t('texto en español')` (`src/i18n.ts`); el inglés está
+en `src/i18n.en.ts` y `tests/i18n.test.ts` falla si alguno no tiene traducción.
+
 Las páginas estáticas comparten cabecera y pie (`src/site/partials/`), que Vite inserta al compilar.
 `public/demo.json` se regenera con `KRONOS_MODELS=/ruta/a/modelos node tools/make_demo.ts > public/demo.json`.
 

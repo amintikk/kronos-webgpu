@@ -1,3 +1,4 @@
+import { t } from '../i18n.ts';
 import '@fontsource-variable/inter';
 import './site.css';
 import { ForecastChart } from '../chart.ts';
@@ -101,10 +102,10 @@ async function demo(): Promise<void> {
   const up = Math.round(s.pUp * 100);
   document.getElementById('demo-foot')?.replaceChildren(
     ...[
-      ['Mediana a 48 h', fmtPrice(s.endMedian)],
-      ['Variación prevista', fmtPct(s.changePct)],
-      ['80 % de los escenarios', `${fmtPct((s.endLo / s.last - 1) * 100, 1)} a ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`],
-      ['Escenarios al alza', `${up} %`],
+      [t('Mediana a 48 h'), fmtPrice(s.endMedian)],
+      [t('Variación prevista'), fmtPct(s.changePct)],
+      [t('80 % de los escenarios'), t('{a} a {b}', { a: fmtPct((s.endLo / s.last - 1) * 100, 1), b: fmtPct((s.endHi / s.last - 1) * 100, 1) })],
+      [t('Escenarios al alza'), `${up} %`],
     ].map(([k, v]) => {
       const div = document.createElement('div');
       const a = document.createElement('span');

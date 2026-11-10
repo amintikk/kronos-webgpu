@@ -28,11 +28,26 @@ function partials(): Plugin {
   const dir = resolve(__dirname, 'src/site/partials');
   return {
     name: 'partials',
-    transformIndexHtml: (html) => html.replace(/<!--#(\w+)-->/g, (_, name: string) => readFileSync(join(dir, `${name}.html`), 'utf8')),
+    transformIndexHtml(html) {
+      // The language switch links to this page's alternate, read from its own hreflang tags.
+      const lang = /<html lang="(\w+)"/.exec(html)?.[1] ?? 'es';
+      const other = lang === 'en' ? 'es' : 'en';
+      const href = new RegExp(`<link rel="alternate" hreflang="${other}" href="https://kronos\\.aminox\\.dev([^"]*)"`).exec(html)?.[1];
+      return html.replace(/<!--#([\w-]+)-->/g, (_, name: string) =>
+        readFileSync(join(dir, `${name}.html`), 'utf8')
+          .replaceAll('{{alt-href}}', href ?? (other === 'en' ? '/en/' : '/'))
+          .replaceAll('{{alt-lang}}', other)
+          .replaceAll('{{alt-label}}', other === 'en' ? 'EN' : 'ES')
+          .replaceAll('{{alt-title}}', other === 'en' ? 'Read in English' : 'Leer en español'),
+      );
+    },
   };
 }
 
-const pages = ['index.html', 'app/index.html', 'aviso-legal/index.html', 'privacidad/index.html', 'terminos/index.html', 'licencias/index.html'];
+const pages = [
+  'index.html', 'app/index.html', 'aviso-legal/index.html', 'privacidad/index.html', 'terminos/index.html', 'licencias/index.html',
+  'en/index.html', 'en/app/index.html', 'en/legal-notice/index.html', 'en/privacy/index.html', 'en/terms/index.html', 'en/licenses/index.html',
+];
 
 export default defineConfig({
   plugins: [localModels(), partials()],

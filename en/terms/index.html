@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terms of use · Kronos WebGPU</title>
+    <meta name="description" content="Terms of use for the Kronos WebGPU forecasting tool." />
+    <link rel="canonical" href="https://kronos.aminox.dev/en/terms/" />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/terminos/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/terms/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/terms/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-en-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Terms of use</h1>
+        <p class="updated">Last updated: 10 November 2026</p>
+
+        <p>By using Kronos WebGPU you accept these terms. If you do not agree, do not use the tool.</p>
+        <h2>What the service is</h2>
+        <p>A free, experimental tool that downloads time-series forecasting models and runs them in your browser on public market data or on files you load.</p>
+        <h2>No financial advice</h2>
+        <p>
+          Forecasts are statistical estimates from machine-learning models. <strong>They can be wrong and do not guarantee future results.</strong> They are not investment recommendations.
+          Trading cryptocurrencies or other assets carries a high risk of losing money; any decision you make is yours alone and at your own risk.
+        </p>
+        <h2>No warranty</h2>
+        <p>
+          The service is provided “as is”, without warranties of any kind: it may contain errors, change or stop being available without notice. Market data comes from third parties and may be
+          incomplete, delayed or wrong. Running the models uses your device’s memory, battery and data.
+        </p>
+        <h2>Acceptable use</h2>
+        <ul>
+          <li>Do not use the tool for illegal activities or to harm others.</li>
+          <li>Do not try to overload the server, for example by downloading the models in bulk or in an automated way.</li>
+          <li>Respect the terms of use of the exchanges whose data you query.</li>
+        </ul>
+        <h2>License of the code and models</h2>
+        <p>The code is free software under the MIT license: you can use, modify and redistribute it under that license. Third-party models and libraries keep their own licenses (see <a href="/en/licenses/">licenses</a>).</p>
+        <h2>Limitation of liability</h2>
+        <p>
+          To the extent permitted by law, the owner is not liable for financial losses, direct or indirect damages, or loss of data arising from the use of, or inability to use, the tool. Nothing
+          here limits the rights you may have under applicable consumer law.
+        </p>
+        <h2>Changes and governing law</h2>
+        <p>These terms may be updated; the version in force is the one published here. They are governed by Spanish law. For any questions write to <a href="mailto:amintahtahtoumi@gmail.com">amintahtahtoumi@gmail.com</a>.</p>
+      </div>
+    </main>
+    <!--#footer-en-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

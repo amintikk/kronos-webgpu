@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy and cookies · Kronos WebGPU</title>
+    <meta name="description" content="What data is processed when you use Kronos WebGPU: no accounts, no cookies and no analytics." />
+    <link rel="canonical" href="https://kronos.aminox.dev/en/privacy/" />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/privacidad/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/privacy/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/privacy/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-en-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Privacy and cookies</h1>
+        <p class="updated">Last updated: 10 November 2026</p>
+
+        <p>In short: <strong>there are no accounts, forms, cookies or analytics.</strong> The model runs on your device and your browser requests the candles directly from the exchange. The only personal data reaching our systems is the technical data of any website visit, such as your IP address.</p>
+        <h2>Data controller</h2>
+        <div class="card">
+          <p><strong>Owner:</strong> Amin Tahtah Toumi</p>
+          <p><strong>Email:</strong> <a href="mailto:amintahtahtoumi@gmail.com">amintahtahtoumi@gmail.com</a></p>
+          <p><strong>Website:</strong> kronos.aminox.dev</p>
+        </div>
+        <h2>Data processed and why</h2>
+        <div class="card table-card">
+          <table>
+            <thead><tr><th>Data</th><th>Purpose</th><th>Legal basis</th><th>Retention</th></tr></thead>
+            <tbody>
+              <tr><td>IP address, date, page requested and browser (server logs)</td><td>Serving the site, security and troubleshooting</td><td>Legitimate interest (Art. 6(1)(f) GDPR)</td><td>Up to about 5 weeks; removed by automatic rotation</td></tr>
+              <tr><td>Any email you send us</td><td>Replying to your message</td><td>Your consent when you write to us</td><td>As long as needed to deal with it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>No profiles are built, no automated decisions are made about you and no data is shared with third parties except where required by law.</p>
+        <h2>What does not reach our systems</h2>
+        <ul>
+          <li><strong>Your queries and results.</strong> The pair, interval, settings and forecasts are computed and stay in your browser.</li>
+          <li><strong>Your CSV files.</strong> They are read on your device and are not uploaded anywhere.</li>
+          <li><strong>Analytics.</strong> We do not use Google Analytics or similar tools. The font is served from this same domain, without Google Fonts.</li>
+        </ul>
+        <h2>Providers involved</h2>
+        <ul>
+          <li><strong>Oracle Cloud</strong> (server in Madrid, EU): hosts the website files and a backup copy of the models.</li>
+          <li><strong>Cloudflare</strong> (delivery network and security): receives your IP address when you visit the site. It may process it outside the European Economic Area under the EU-US Data Privacy Framework and standard contractual clauses. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare’s policy</a>.</li>
+          <li><strong>Cloudflare R2</strong> (storage in Western Europe): serves the models from kronos-models.aminox.dev when you download them, and therefore receives your IP address. The same safeguards as for Cloudflare’s other services apply.</li>
+        </ul>
+        <h2>Connections your browser makes when you use the app</h2>
+        <p>
+          To show candles, your browser connects directly to the exchange you choose (Binance, Bybit, OKX or Coinbase). That exchange receives your IP address and the pair you query, and processes
+          them under its own privacy policy; it does not act on our behalf. If you do not want any exchange to receive these requests, you can load your data from a CSV.
+        </p>
+        <h2>Cookies and local storage</h2>
+        <p>This site <strong>does not set cookies</strong>. It does store the following in your browser, without sending it to any server:</p>
+        <ul>
+          <li><strong>Preferences</strong> (localStorage): theme, pair, model, settings and which sections are open.</li>
+          <li><strong>Downloaded models</strong> (Cache Storage), so they do not have to be downloaded every time.</li>
+        </ul>
+        <p>
+          This storage is strictly necessary to provide the service you request, so it does not require consent (Art. 22.2 LSSI). You can delete it at any time from the app’s “Models” tab or
+          from your browser settings (site data for kronos.aminox.dev).
+        </p>
+        <h2>Your rights</h2>
+        <p>
+          You can request access to, rectification, erasure, objection, restriction and portability of your data by writing to the email above. If you think your rights have not been respected,
+          you can complain to the <a href="https://www.aepd.es/en" target="_blank" rel="noopener">Spanish Data Protection Agency</a>. Note that, as there are no accounts, we will usually be unable
+          to link an IP address in the logs to a person.
+        </p>
+        <h2>Changes</h2>
+        <p>If this policy changes, the new version will be published here with its date. If analytics or non-essential cookies were ever added, your consent would be asked first.</p>
+      </div>
+    </main>
+    <!--#footer-en-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kronos WebGPU · AI candlestick forecasting in your browser</title>
+    <meta name="description" content="Run Kronos, a foundation model for financial candlestick data, right in your browser with WebGPU. Free, serverless and open source." />
+    <link rel="canonical" href="https://kronos.aminox.dev/en/" />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kronos WebGPU · AI candlestick forecasting in your browser" />
+    <meta property="og:description" content="Time-series forecasting models running on your own device. Free, serverless and open source." />
+    <meta property="og:url" content="https://kronos.aminox.dev/en/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_ES" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kronos WebGPU",
+        "url": "https://kronos.aminox.dev/en/",
+        "inLanguage": "en",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/MIT",
+        "codeRepository": "https://github.com/amintikk/kronos-webgpu",
+        "author": { "@type": "Person", "name": "Amin Tahtah Toumi" }
+      }
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-en-->
+
+    <main>
+      <section class="landing-hero">
+        <div class="wrap">
+          <h1>AI candlestick forecasting, running in your browser</h1>
+          <div class="hero-row">
+            <p class="lead">
+              This site brings <a href="https://github.com/shiyu-coder/Kronos" target="_blank" rel="noopener">Kronos</a>, an open model trained on candles from more than 45 exchanges, to your own
+              device. Pick a pair, press “Forecast” and the model draws dozens of possible futures. No account needed, and your queries never go through a server.
+            </p>
+            <div class="hero-actions">
+              <a class="btn primary big" href="/en/app/">Open the app</a>
+              <a class="text-link" href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">Code on GitHub<i data-icon="arrowRight" data-size="15"></i></a>
+            </div>
+          </div>
+          <figure class="figure">
+            <div id="demo-chart" class="demo-chart" role="img" aria-label="BTC/USDT candles and the fan of scenarios Kronos-mini forecast for the next 48 hours"></div>
+            <div class="figure-stats" id="demo-foot"></div>
+            <figcaption>
+              BTC/USDT in one-hour candles. Right of the dashed line, what Kronos-mini forecast for the next 48 hours: the line is the median of 32 paths and the shaded areas hold half and 80 % of
+              them. Computed with the same engine the app uses.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="block" id="what-it-does">
+        <div class="wrap block-grid">
+          <h2>What it does</h2>
+          <div class="block-body">
+            <p class="intro">It is a tool to try a forecasting model on real data and check, with numbers, whether it is worth listening to.</p>
+            <dl class="defs">
+              <div><dt>Scenarios, not a single number</dt><dd>Kronos generates many possible paths. From them come the median, the 50 % and 80 % bands and the probability that the price ends higher.</dd></div>
+              <div><dt>Compared with what happened</dt><dd>You can forecast from a point in the past and see the error, whether it got the direction right and whether it beats assuming the price stays put. The backtest repeats this over many dates.</dd></div>
+              <div><dt>Data from four exchanges</dt><dd>Binance, Bybit, OKX and Coinbase, live and requested by your own browser. It also accepts a CSV with your own candles.</dd></div>
+              <div><dt>Five models</dt><dd>Kronos mini, small and base, plus Amazon’s Chronos-Bolt as a second opinion. You can pin a forecast and run another on top to compare them.</dd></div>
+              <div><dt>Everything on your device</dt><dd>The model is downloaded once (34 to 429 MB), stays in the browser and runs on the GPU, or on the CPU when WebGPU is not available.</dd></div>
+              <div><dt>Exportable</dt><dd>Forecasts export to CSV or JSON, the chart to PNG, and the settings can be shared with a link.</dd></div>
+            </dl>
+          </div>
+          <figure class="shot">
+            <a href="/en/app/" aria-label="Open the app">
+              <img class="shot-light" src="/shots/app-light-en.jpg" width="1360" height="860" loading="lazy" alt="The app with a Kronos-mini forecast for BTC/USDT: settings on the left, candlestick chart with the scenario fan and forecast candles, and a summary with the forecast price and the probability of going up." />
+              <img class="shot-dark" src="/shots/app-dark-en.jpg" width="1360" height="860" loading="lazy" alt="The app with a Kronos-mini forecast for BTC/USDT, in dark mode." />
+            </a>
+            <figcaption>The app on a laptop: settings on the left, the chart with the forecast and, below, the summary and the backtest.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="block" id="kronos">
+        <div class="wrap block-grid">
+          <h2>What is Kronos</h2>
+          <div class="block-body">
+            <p class="intro">A model that treats price candles as a language. Just as a text model learns which word comes next, Kronos learns which candle comes next.</p>
+            <p>
+              It was published by Yu Shi, Zongliang Fu, Shuo Chen, Bohan Zhao, Wei Xu, Changshui Zhang and Jian Li in
+              <a href="https://arxiv.org/abs/2508.02739" target="_blank" rel="noopener">“Kronos: A Foundation Model for the Language of Financial Markets”</a>, accepted at AAAI 2026. It was trained on
+              data from more than 45 exchanges, and its code and weights are open (MIT). It works in three steps:
+            </p>
+            <ol class="numbered">
+              <li><strong>Tokenizer.</strong> Turns each candle (open, high, low, close and volume) into two tokens: a coarse one with the overall shape and a fine one with the detail.</li>
+              <li><strong>Transformer.</strong> Reads the sequence of tokens and gives the probability of every possible next token. One is drawn at random according to those probabilities, appended, and the process repeats.</li>
+              <li><strong>Scenarios.</strong> Each repetition gives a different future. How much they differ is the model’s uncertainty.</li>
+            </ol>
+            <figure class="fig">
+              <div class="fig-frame" id="fig-tokens"></div>
+              <figcaption>
+                <strong>Step 1, with real data.</strong> The last 12 candles of the example above and the two tokens Kronos-mini’s tokenizer assigns to them. Each square is a bit; tap or hover over a
+                candle to see its values and each token’s number. Similar candles share the coarse token and differ in the fine one.
+              </figcaption>
+            </figure>
+            <figure class="fig">
+              <div class="fig-head"><span>Paths</span><div class="segmented" id="fig-paths-controls" role="group" aria-label="Number of paths"></div></div>
+              <div class="fig-frame" id="fig-paths"></div>
+              <figcaption>
+                <strong>Step 3.</strong> With a single path there is no way to tell how much to trust it. Repeating the sampling reveals where most of them land: the median and the band that leaves out the
+                top 10 % and the bottom 10 %.
+              </figcaption>
+            </figure>
+            <table class="plain">
+              <thead><tr><th>Model</th><th>Parameters</th><th>Context</th><th>Available</th></tr></thead>
+              <tbody>
+                <tr><td>Kronos-mini</td><td>4.1 M</td><td>2048 candles</td><td>Yes</td></tr>
+                <tr><td>Kronos-small</td><td>24.7 M</td><td>512 candles</td><td>Yes</td></tr>
+                <tr><td>Kronos-base</td><td>102.3 M</td><td>512 candles</td><td>Yes</td></tr>
+                <tr><td>Kronos-large</td><td>499.2 M</td><td>512 candles</td><td class="muted">No, the authors have not released the weights</td></tr>
+                <tr><td>Chronos-Bolt tiny</td><td>9 M</td><td>2048 candles</td><td>Yes</td></tr>
+                <tr><td>Chronos-Bolt small</td><td>48 M</td><td>2048 candles</td><td>Yes</td></tr>
+              </tbody>
+            </table>
+            <p class="small">
+              <a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">Chronos-Bolt</a> is a general-purpose model from Amazon (Apache-2.0). It only forecasts the
+              close and does so in a single pass, so it is fast and useful as a check on Kronos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="how-it-works">
+        <div class="wrap block-grid">
+          <h2>How it works</h2>
+          <div class="block-body">
+            <p class="intro">Kronos is designed to run with Python and PyTorch on a server. Making it work in a browser meant rewriting the part that generates the forecasts.</p>
+            <figure class="fig">
+              <div class="fig-head"><span>Tokens processed by the transformer</span><b data-fig="work-ratio"></b></div>
+              <div class="fig-frame" id="fig-work"></div>
+              <figcaption>
+                For the forecast above: 400 context candles, 48 forecast candles and 32 paths. The original reads the whole context again for every candle and every path; here it is read once and
+                each step adds a single token. This counts work, not time: real time depends on the device.
+              </figcaption>
+            </figure>
+            <dl class="defs">
+              <div><dt>One token per step</dt><dd>The original code processes the whole context again for every new candle. Here the model is exported to ONNX with a key/value cache: the context is processed once, shared by every path, and each step computes a single token.</dd></div>
+              <div><dt>Checked against the original</dt><dd>The tests run the official Kronos in PyTorch and the browser engine on the same candles. Without randomness they give the same forecast; internal outputs differ by less than 0.00004.</dd></div>
+              <div><dt>GPU or CPU</dt><dd>With WebGPU the cache stays on the graphics card between steps. Without WebGPU, the same model runs with multi-threaded WebAssembly.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="limits">
+        <div class="wrap block-grid">
+          <h2>Limits</h2>
+          <div class="block-body">
+            <p class="intro">It is not a buy or sell signal, nor financial advice.</p>
+            <p>
+              No model forecasts markets reliably, and Kronos is often wrong. That is why the app measures every forecast against the simplest option, assuming the price does not move. If the
+              backtest does not beat it, the model adds nothing for that market and interval.
+            </p>
+            <figure class="fig">
+              <div class="fig-stats" id="fig-backtest-stats"></div>
+              <div class="fig-frame" id="fig-backtest"></div>
+              <figcaption>
+                <strong>A real backtest.</strong> Kronos-mini forecast BTC/USDT 24 hours ahead every 12 hours <span data-fig="bt-range"></span>. Each dot is one forecast: in the shaded areas it got the
+                direction right. Filled dots landed inside their 80 % band and hollow ones outside. Forecasts stay close to 0 while the actual price moves much more: it gets the direction right more than
+                half the time, but its band is too narrow and its error is larger than not forecasting at all.
+              </figcaption>
+            </figure>
+            <p>Large models are slow on modest computers and phones. Kronos-large is not available because its weights are not public.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="faq">
+        <div class="wrap block-grid">
+          <h2>FAQ</h2>
+          <div class="block-body">
+            <div class="faq">
+              <details><summary>Is it free?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Yes, with no accounts or ads. Your device does the computing, so running it costs nobody else anything.</p></div></details>
+              <details><summary>Is my data sent to a server?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>No. Your browser requests the candles from the exchange and the model runs on your device; this site only serves files. Details are in the <a href="/en/privacy/">privacy policy</a>.</p></div></details>
+              <details><summary>Which browser do I need?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Any current one. With WebGPU (desktop Chrome and Edge, among others) it uses the graphics card; without it, it uses the CPU, somewhat slower. Small models work well on phones.</p></div></details>
+              <details><summary>How long does it take?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Kronos-mini forecasts 32 candles with 12 paths in a few seconds to half a minute, depending on the device. Larger models take much longer. The download only happens the first time.</p></div></details>
+              <details><summary>Can I use my own data?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>Yes: a CSV with date, open, high, low and close, plus volume if you have it. It works for stocks, currencies or any candlestick series. The file never leaves your device.</p></div></details>
+              <details><summary>Can I run it myself?<i data-icon="chevronDown" data-size="18"></i></summary><div><p>The <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">repository</a> has the app, the scripts that convert the official weights to ONNX and the tests that compare them with PyTorch. It can be hosted on any static file server.</p></div></details>
+            </div>
+            <p class="closing"><a class="btn primary big" href="/en/app/">Open the app</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--#footer-en-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>

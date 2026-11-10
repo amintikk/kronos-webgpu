@@ -12,6 +12,7 @@ import '@fontsource-variable/inter';
 import { $, download, fmtBytes, fmtCompact, fmtDuration, fmtNum, fmtPct, fmtPrice, fmtTime, h, toast } from './ui/dom.ts';
 import { hydrateIcons, icon, type IconName } from './ui/icons.ts';
 import { enhanceCombo, enhanceSelect } from './ui/select.ts';
+import { locale, t } from './i18n.ts';
 
 const S = loadSettings();
 const engine = new Engine();
@@ -38,7 +39,7 @@ const inMemory = new Set<string>();
 
 function log(msg: string): void {
   const el = $('log');
-  el.textContent += `${new Date().toLocaleTimeString('es-ES')}  ${msg}\n`;
+  el.textContent += `${new Date().toLocaleTimeString(locale)}  ${msg}\n`;
   el.scrollTop = el.scrollHeight;
 }
 
@@ -79,8 +80,8 @@ function modelInfo(id = S.model): { label: string; maxContext: number; files: Fi
     return { label: m.label, maxContext: m.context_length, files: [m.model], params: m.params, source: m.source };
   }
   const m = manifest.models[key!]!;
-  const t = manifest.tokenizers[m.tokenizer]!;
-  return { label: m.label, maxContext: m.max_context, files: [t.enc, t.dec, m.lm, m.s2], params: m.params, source: m.source };
+  const tok = manifest.tokenizers[m.tokenizer]!;
+  return { label: m.label, maxContext: m.max_context, files: [tok.enc, tok.dec, m.lm, m.s2], params: m.params, source: m.source };
 }
 
 /** Candles usable as model context: closed ones, plus the forming one if the user asked for it. */
@@ -117,87 +118,87 @@ const hints = new Map<string, HTMLElement>();
 
 const SECTIONS: { title: string; icon: IconName; open: boolean; fields: Field[]; extra?: () => HTMLElement[] }[] = [
   {
-    title: 'Datos',
+    title: t('Datos'),
     icon: 'database',
     open: true,
     fields: [
-      { key: 'source', label: 'Fuente', kind: 'select', options: () => [...SOURCES.map((s) => [s.id, s.name] as [string, string]), ['csv', 'Archivo CSV']] },
-      { key: 'symbol', label: 'Par', kind: 'text' },
-      { key: 'interval', label: 'Intervalo', kind: 'select', options: () => (csv ? [[S.interval, 'del archivo']] : sourceById(S.source).intervals.map((i) => [i, i])) },
-      { key: 'lookback', label: 'Velas de contexto', kind: 'number', min: 32, max: 2048, step: 16, hint: 'lookback' },
-      { key: 'includeOpen', label: 'Usar la vela en curso', kind: 'check' },
-      { key: 'live', label: 'Actualizar en directo', kind: 'check' },
+      { key: 'source', label: t('Fuente'), kind: 'select', options: () => [...SOURCES.map((s) => [s.id, s.name] as [string, string]), ['csv', t('Archivo CSV')]] },
+      { key: 'symbol', label: t('Par'), kind: 'text' },
+      { key: 'interval', label: t('Intervalo'), kind: 'select', options: () => (csv ? [[S.interval, t('del archivo')]] : sourceById(S.source).intervals.map((i) => [i, i])) },
+      { key: 'lookback', label: t('Velas de contexto'), kind: 'number', min: 32, max: 2048, step: 16, hint: 'lookback' },
+      { key: 'includeOpen', label: t('Usar la vela en curso'), kind: 'check' },
+      { key: 'live', label: t('Actualizar en directo'), kind: 'check' },
     ],
     extra: () => [
       h(
         'div',
         { class: 'field wide' },
-        h('label', { for: 'csv-file' }, 'Cargar CSV propio'),
+        h('label', { for: 'csv-file' }, t('Cargar CSV propio')),
         h('input', { id: 'csv-file', type: 'file', accept: '.csv,text/csv', hidden: true, onchange: onCsv }),
         h(
           'div',
           { class: 'filepick' },
-          h('button', { type: 'button', class: 'btn small', onclick: () => $('csv-file').click() }, icon('upload', 14), 'Elegir archivo'),
-          h('span', { id: 'csv-name' }, 'Ninguno'),
+          h('button', { type: 'button', class: 'btn small', onclick: () => $('csv-file').click() }, icon('upload', 14), t('Elegir archivo')),
+          h('span', { id: 'csv-name' }, t('Ninguno')),
         ),
-        h('div', { class: 'hint' }, 'Columnas: timestamps, open, high, low, close y, si las hay, volume y amount.'),
+        h('div', { class: 'hint' }, t('Columnas: timestamps, open, high, low, close y, si las hay, volume y amount.')),
       ),
     ],
   },
   {
-    title: 'Modelo',
+    title: t('Modelo'),
     icon: 'cpu',
     open: true,
     fields: [
-      { key: 'model', label: 'Modelo', kind: 'select', options: modelOptions, hint: 'model' },
-      { key: 'backend', label: 'Motor', kind: 'select', options: () => [['auto', 'Automático'], ['webgpu', 'WebGPU'], ['wasm', 'CPU (WASM)']] },
-      { key: 'threads', label: 'Hilos de CPU', kind: 'number', min: 0, max: 32, step: 1, hint: 'threads' },
+      { key: 'model', label: t('Modelo'), kind: 'select', options: modelOptions, hint: 'model' },
+      { key: 'backend', label: t('Motor'), kind: 'select', options: () => [['auto', t('Automático')], ['webgpu', 'WebGPU'], ['wasm', t('CPU (WASM)')]] },
+      { key: 'threads', label: t('Hilos de CPU'), kind: 'number', min: 0, max: 32, step: 1, hint: 'threads' },
     ],
   },
   {
-    title: 'Predicción',
+    title: t('Predicción'),
     icon: 'activity',
     open: true,
     fields: [
-      { key: 'horizon', label: 'Horizonte (velas)', kind: 'number', min: 1, max: 512, step: 1, hint: 'horizon' },
-      { key: 'samples', label: 'Trayectorias', kind: 'number', min: 1, max: 256, step: 1, hint: 'samples' },
-      { key: 'batch', label: 'En paralelo', kind: 'number', min: 1, max: 64, step: 1 },
-      { key: 'temperature', label: 'Temperatura', kind: 'number', min: 0.1, max: 2, step: 0.05 },
+      { key: 'horizon', label: t('Horizonte (velas)'), kind: 'number', min: 1, max: 512, step: 1, hint: 'horizon' },
+      { key: 'samples', label: t('Trayectorias'), kind: 'number', min: 1, max: 256, step: 1, hint: 'samples' },
+      { key: 'batch', label: t('En paralelo'), kind: 'number', min: 1, max: 64, step: 1 },
+      { key: 'temperature', label: t('Temperatura'), kind: 'number', min: 0.1, max: 2, step: 0.05 },
       { key: 'topP', label: 'Top-p', kind: 'number', min: 0.05, max: 1, step: 0.01 },
-      { key: 'topK', label: 'Top-k (0 = sin límite)', kind: 'number', min: 0, max: 1024, step: 1 },
-      { key: 'randomSeed', label: 'Semilla aleatoria', kind: 'check' },
-      { key: 'seed', label: 'Semilla', kind: 'number', min: 0, max: 4294967295, step: 1 },
-      { key: 'fastWindow', label: 'Modo rápido con contexto largo', kind: 'check', hint: 'fastWindow' },
-      { key: 'offset', label: 'Velas atrás (0 = ahora)', kind: 'number', min: 0, max: 5000, step: 1, hint: 'offset' },
-      { key: 'autoPredict', label: 'Predecir al cerrar cada vela', kind: 'check' },
+      { key: 'topK', label: t('Top-k (0 = sin límite)'), kind: 'number', min: 0, max: 1024, step: 1 },
+      { key: 'randomSeed', label: t('Semilla aleatoria'), kind: 'check' },
+      { key: 'seed', label: t('Semilla'), kind: 'number', min: 0, max: 4294967295, step: 1 },
+      { key: 'fastWindow', label: t('Modo rápido con contexto largo'), kind: 'check', hint: 'fastWindow' },
+      { key: 'offset', label: t('Velas atrás (0 = ahora)'), kind: 'number', min: 0, max: 5000, step: 1, hint: 'offset' },
+      { key: 'autoPredict', label: t('Predecir al cerrar cada vela'), kind: 'check' },
     ],
   },
   {
-    title: 'Vista',
+    title: t('Vista'),
     icon: 'eye',
     open: false,
     fields: [
-      { key: 'median', label: 'Mediana', kind: 'check' },
-      { key: 'bands', label: 'Bandas de percentiles', kind: 'check' },
-      { key: 'paths', label: 'Trayectorias', kind: 'check' },
-      { key: 'meanCandles', label: 'Velas medias', kind: 'check' },
-      { key: 'volume', label: 'Volumen', kind: 'check' },
-      { key: 'log', label: 'Escala logarítmica', kind: 'check' },
-      { key: 'localTime', label: 'Hora local (si no, UTC)', kind: 'check' },
+      { key: 'median', label: t('Mediana'), kind: 'check' },
+      { key: 'bands', label: t('Bandas de percentiles'), kind: 'check' },
+      { key: 'paths', label: t('Trayectorias'), kind: 'check' },
+      { key: 'meanCandles', label: t('Velas medias'), kind: 'check' },
+      { key: 'volume', label: t('Volumen'), kind: 'check' },
+      { key: 'log', label: t('Escala logarítmica'), kind: 'check' },
+      { key: 'localTime', label: t('Hora local (si no, UTC)'), kind: 'check' },
     ],
   },
   {
-    title: 'Backtest',
+    title: t('Backtest'),
     icon: 'history',
     open: false,
     fields: [
-      { key: 'btWindows', label: 'Ventanas', kind: 'number', min: 1, max: 100, step: 1 },
-      { key: 'btStride', label: 'Separación (0 = horizonte)', kind: 'number', min: 0, max: 2000, step: 1 },
-      { key: 'btSamples', label: 'Trayectorias por ventana', kind: 'number', min: 1, max: 64, step: 1 },
+      { key: 'btWindows', label: t('Ventanas'), kind: 'number', min: 1, max: 100, step: 1 },
+      { key: 'btStride', label: t('Separación (0 = horizonte)'), kind: 'number', min: 0, max: 2000, step: 1 },
+      { key: 'btSamples', label: t('Trayectorias por ventana'), kind: 'number', min: 1, max: 64, step: 1 },
     ],
     extra: () => [
-      h('button', { id: 'btn-backtest', class: 'btn', style: 'justify-self:start', onclick: () => void runBacktest() }, icon('play', 12), 'Ejecutar backtest'),
-      h('div', { class: 'hint' }, 'Repite la predicción en puntos del pasado y la compara con lo que ocurrió. Usa el modelo, el contexto y el horizonte actuales.'),
+      h('button', { id: 'btn-backtest', class: 'btn', style: 'justify-self:start', onclick: () => void runBacktest() }, icon('play', 12), t('Ejecutar backtest')),
+      h('div', { class: 'hint' }, t('Repite la predicción en puntos del pasado y la compara con lo que ocurrió. Usa el modelo, el contexto y el horizonte actuales.')),
     ],
   },
 ];
@@ -214,7 +215,7 @@ function fillSelect(key: keyof Settings): void {
   const el = inputs.get(key) as HTMLSelectElement;
   const field = SECTIONS.flatMap((s) => s.fields).find((f) => f.key === key)!;
   const opts = field.options!();
-  el.replaceChildren(...opts.map(([v, t]) => h('option', { value: v }, t)));
+  el.replaceChildren(...opts.map(([v, label]) => h('option', { value: v }, label)));
   if (!opts.some(([v]) => v === S[key])) (S as unknown as Record<string, unknown>)[key] = opts[0]![0];
   el.value = String(S[key]);
   selectSync.get(key)?.();
@@ -230,9 +231,9 @@ function stepper(input: HTMLInputElement): HTMLElement {
   return h(
     'div',
     { class: 'num' },
-    h('button', { type: 'button', tabIndex: -1, 'aria-label': 'Menos', onclick: bump(-1) }, icon('minus', 14)),
+    h('button', { type: 'button', tabIndex: -1, 'aria-label': t('Menos'), onclick: bump(-1) }, icon('minus', 14)),
     input,
-    h('button', { type: 'button', tabIndex: -1, 'aria-label': 'Más', onclick: bump(1) }, icon('plus', 14)),
+    h('button', { type: 'button', tabIndex: -1, 'aria-label': t('Más'), onclick: bump(1) }, icon('plus', 14)),
   );
 }
 
@@ -267,7 +268,7 @@ function buildControls(): void {
       fields.append(row);
     }
     for (const el of sec.extra?.() ?? []) fields.append(el);
-    const acc = h('section', { class: `acc${(openState[sec.title] ?? sec.open) ? ' open' : ''}` });
+    const acc = h('section', { class: `acc${(openState[sec.icon] ?? sec.open) ? ' open' : ''}` });
     const head = h(
       'button',
       { type: 'button', class: 'acc-head', 'aria-expanded': String(acc.classList.contains('open')) },
@@ -282,7 +283,7 @@ function buildControls(): void {
     head.addEventListener('click', () => {
       const open = acc.classList.toggle('open');
       head.setAttribute('aria-expanded', String(open));
-      openState[sec.title] = open;
+      openState[sec.icon] = open;
       try {
         localStorage.setItem('kronos-sections', JSON.stringify(openState));
       } catch {
@@ -321,7 +322,7 @@ async function onChange(key: keyof Settings): Promise<void> {
   switch (key) {
     case 'source':
       if (S.source === 'csv' && !csv) {
-        toast('Elige un archivo CSV más abajo');
+        toast(t('Elige un archivo CSV más abajo'));
         S.source = DEFAULTS.source;
         setSelect('source', S.source);
         return;
@@ -332,7 +333,7 @@ async function onChange(key: keyof Settings): Promise<void> {
         (inputs.get('symbol') as HTMLInputElement).value = S.symbol;
         symbolsFor = '';
         symbolList = [];
-        $('csv-name').textContent = 'Ninguno';
+        $('csv-name').textContent = t('Ninguno');
       }
       fillSelect('interval');
       saveSettings(S);
@@ -378,20 +379,20 @@ function updateHints(): void {
   const info = modelInfo();
   const { family } = modelParts();
   const size = info.files.reduce((a, f) => a + f.bytes, 0);
-  hints.get('model')!.textContent = `${fmtBytes(size)} de descarga la primera vez. Contexto máximo: ${info.maxContext} velas.${family === 'chronos' ? ' Solo predice el cierre.' : ''}`;
-  hints.get('lookback')!.textContent = S.lookback > info.maxContext ? `Este modelo usará las últimas ${info.maxContext}.` : '';
-  hints.get('threads')!.textContent = engine.backend === 'wasm' ? `0 = automático. En uso: ${engine.threads}.` : '0 = automático. Solo se aplica al motor de CPU.';
-  hints.get('samples')!.textContent = family === 'chronos' ? 'Chronos-Bolt no muestrea: devuelve cuantiles directamente.' : 'Más trayectorias dan bandas más estables y tardan más.';
+  hints.get('model')!.textContent = t('{size} de descarga la primera vez. Contexto máximo: {n} velas.', { size: fmtBytes(size), n: info.maxContext }) + (family === 'chronos' ? ` ${t('Solo predice el cierre.')}` : '');
+  hints.get('lookback')!.textContent = S.lookback > info.maxContext ? t('Este modelo usará las últimas {n}.', { n: info.maxContext }) : '';
+  hints.get('threads')!.textContent = engine.backend === 'wasm' ? t('0 = automático. En uso: {n}.', { n: engine.threads }) : t('0 = automático. Solo se aplica al motor de CPU.');
+  hints.get('samples')!.textContent = family === 'chronos' ? t('Chronos-Bolt no muestrea: devuelve cuantiles directamente.') : t('Más trayectorias dan bandas más estables y tardan más.');
   const chronosMax = family === 'chronos' ? manifest.chronos[modelParts().key]!.prediction_length : 0;
   hints.get('horizon')!.textContent =
-    chronosMax && S.horizon > chronosMax ? `Más de ${chronosMax} velas se generan encadenando la mediana: las bandas lejanas son menos fiables.` : '';
-  hints.get('offset')!.textContent = S.offset > 0 ? 'Predice desde el pasado y compara con lo ocurrido.' : '';
+    chronosMax && S.horizon > chronosMax ? t('Más de {n} velas se generan encadenando la mediana: las bandas lejanas son menos fiables.', { n: chronosMax }) : '';
+  hints.get('offset')!.textContent = S.offset > 0 ? t('Predice desde el pasado y compara con lo ocurrido.') : '';
   const overflow = family === 'kronos' && Math.min(S.lookback, info.maxContext) + S.horizon > info.maxContext;
   hints.get('fastWindow')!.textContent = !overflow
-    ? `Sin efecto ahora: contexto y horizonte caben en las ${info.maxContext} velas del modelo.`
+    ? t('Sin efecto ahora: contexto y horizonte caben en las {n} velas del modelo.', { n: info.maxContext })
     : S.fastWindow
-      ? 'Más rápido, pero el modelo ve hasta 64 velas menos de historia y el resultado se aparta del Kronos original.'
-      : 'Exacto como el Kronos original, pero cada vela pasado el límite recalcula todo el contexto y tarda más.';
+      ? t('Más rápido, pero el modelo ve hasta 64 velas menos de historia y el resultado se aparta del Kronos original.')
+      : t('Exacto como el Kronos original, pero cada vela pasado el límite recalcula todo el contexto y tarda más.');
   for (const k of ['samples', 'batch', 'temperature', 'topP', 'topK', 'seed', 'randomSeed', 'fastWindow'] as const) inputs.get(k)!.disabled = family === 'chronos' || (k === 'seed' && S.randomSeed);
   for (const k of ['symbol', 'interval', 'live', 'includeOpen'] as const) inputs.get(k)!.disabled = !!csv;
   for (const sync of selectSync.values()) sync();
@@ -408,7 +409,7 @@ async function loadSymbols(): Promise<void> {
     (inputs.get('symbol') as HTMLInputElement & { refreshSuggestions?: () => void }).refreshSuggestions?.();
   } catch (e) {
     symbolsFor = '';
-    log(`No se pudo cargar la lista de pares: ${(e as Error).message}`);
+    log(t('No se pudo cargar la lista de pares: {e}', { e: (e as Error).message }));
   }
 }
 
@@ -425,18 +426,18 @@ async function loadData(minCount = 0): Promise<void> {
   } else {
     stepMs = INTERVAL_MS[S.interval]!;
     const want = Math.max(1000, minCount, S.lookback + S.offset + S.horizon + 50);
-    $('pair').textContent = `${S.symbol} · cargando`;
+    $('pair').textContent = `${S.symbol} · ${t('cargando')}`;
     try {
       const data = await fetchCandles(sourceById(S.source), S.symbol, S.interval, want);
       if (token !== dataToken) return;
-      if (data.length < 34) throw new Error(`Solo hay ${data.length} velas para ${S.symbol}`);
+      if (data.length < 34) throw new Error(t('Solo hay {n} velas para {s}', { n: data.length, s: S.symbol }));
       all = data;
-      log(`${data.length} velas de ${S.symbol} ${S.interval} (${sourceById(S.source).name})`);
+      log(t('{n} velas de {s} {i} ({src})', { n: data.length, s: S.symbol, i: S.interval, src: sourceById(S.source).name }));
     } catch (e) {
       if (token !== dataToken) return;
       $('pair').textContent = pairLabel();
-      notice(`No se pudieron cargar las velas de ${S.symbol}: ${(e as Error).message}`);
-      log(`Error de datos: ${(e as Error).message}`);
+      notice(t('No se pudieron cargar las velas de {s}: {e}', { s: S.symbol, e: (e as Error).message }));
+      log(t('Error de datos: {e}', { e: (e as Error).message }));
       return;
     }
   }
@@ -498,7 +499,7 @@ async function onCsv(ev: Event): Promise<void> {
     $('csv-name').textContent = file.name;
     fillSelect('interval');
     updateHints();
-    log(`CSV «${file.name}»: ${parsed.candles.length} velas, intervalo ${fmtDuration(parsed.stepMs)}`);
+    log(t('CSV «{f}»: {n} velas, intervalo {d}', { f: file.name, n: parsed.candles.length, d: fmtDuration(parsed.stepMs) }));
     await loadData();
   } catch (e) {
     notice((e as Error).message);
@@ -538,12 +539,12 @@ async function chooseAndBoot(): Promise<void> {
         // A software rasteriser is slower than multi-threaded WASM: only use it when asked for explicitly.
         const software = (info as { isFallbackAdapter?: boolean } | undefined)?.isFallbackAdapter || /swiftshader|llvmpipe|lavapipe|software/i.test(`${gpuLabel} ${info?.description ?? ''}`);
         if (!software || S.backend === 'webgpu') backend = 'webgpu';
-        else log('WebGPU solo está disponible por software en este equipo; se usa la CPU.');
+        else log(t('WebGPU solo está disponible por software en este equipo; se usa la CPU.'));
       }
     } catch {
       /* no WebGPU */
     }
-    if (backend === 'wasm' && S.backend === 'webgpu') notice('Este navegador no ofrece WebGPU. Se usa la CPU (WASM), que es más lenta.');
+    if (backend === 'wasm' && S.backend === 'webgpu') notice(t('Este navegador no ofrece WebGPU. Se usa la CPU (WASM), que es más lenta.'));
   }
   await bootEngine(backend);
 }
@@ -553,15 +554,15 @@ async function bootEngine(backend: Backend): Promise<void> {
   const threads = S.threads > 0 ? S.threads : Math.min(8, Math.max(1, Math.floor(cores * 0.75)));
   inMemory.clear();
   const chip = $('backend-chip');
-  chip.textContent = 'Iniciando';
+  chip.textContent = t('Iniciando');
   try {
     const ready = await engine.start(backend, threads);
     chip.dataset.state = ready.backend === 'webgpu' ? 'gpu' : 'cpu';
-    chip.textContent = ready.backend === 'webgpu' ? `WebGPU${gpuLabel ? ` · ${gpuLabel}` : ''}` : `CPU · ${ready.threads} ${ready.threads === 1 ? 'hilo' : 'hilos'}`;
-    log(`Motor: ${chip.textContent}${ready.backend === 'wasm' && !crossOriginIsolated ? ' (sin aislamiento de origen: un solo hilo)' : ''}`);
+    chip.textContent = ready.backend === 'webgpu' ? `WebGPU${gpuLabel ? ` · ${gpuLabel}` : ''}` : `CPU · ${ready.threads} ${ready.threads === 1 ? t('hilo') : t('hilos')}`;
+    log(`${t('Motor')}: ${chip.textContent}${ready.backend === 'wasm' && !crossOriginIsolated ? ` ${t('(sin aislamiento de origen: un solo hilo)')}` : ''}`);
   } catch (e) {
-    chip.textContent = 'Motor no disponible';
-    notice(`No se pudo iniciar el motor de inferencia: ${(e as Error).message}`);
+    chip.textContent = t('Motor no disponible');
+    notice(t('No se pudo iniciar el motor de inferencia: {e}', { e: (e as Error).message }));
   }
   updateHints();
   renderModels();
@@ -575,14 +576,14 @@ function progressEvents(prefix = ''): Partial<EngineEvents> {
   return {
     download(file, loaded, total, cached) {
       fill.style.width = `${(loaded / total) * 100}%`;
-      text.textContent = cached ? `${prefix}Leyendo ${file} de la caché…` : `${prefix}Descargando ${file}: ${fmtBytes(loaded)} de ${fmtBytes(total)}`;
+      text.textContent = cached ? prefix + t('Leyendo {f} de la caché…', { f: file }) : prefix + t('Descargando {f}: {a} de {b}', { f: file, a: fmtBytes(loaded), b: fmtBytes(total) });
     },
     progress(stage, done, total) {
-      if (stage === 'compile') text.textContent = `${prefix}Preparando el modelo…`;
+      if (stage === 'compile') text.textContent = prefix + t('Preparando el modelo…');
       else if (stage === 'tokenize' || stage === 'context') {
         fill.style.width = '0%';
-        text.textContent = `${prefix}Leyendo el contexto…`;
-      } else if (stage === 'decode') text.textContent = `${prefix}Convirtiendo a precios…`;
+        text.textContent = prefix + t('Leyendo el contexto…');
+      } else if (stage === 'decode') text.textContent = prefix + t('Convirtiendo a precios…');
       else {
         const now = performance.now();
         if (!t0) {
@@ -592,7 +593,7 @@ function progressEvents(prefix = ''): Partial<EngineEvents> {
         fill.style.width = `${(done / total) * 100}%`;
         const rate = (done - first) / Math.max(1, now - t0);
         const eta = rate > 0 ? (total - done) / rate : 0;
-        text.textContent = `${prefix}${fmtNum((done / total) * 100)} %${eta > 1500 ? ` · quedan ${fmtDuration(eta)}` : ''}`;
+        text.textContent = `${prefix}${fmtNum((done / total) * 100)} %${eta > 1500 ? ` · ${t('quedan {d}', { d: fmtDuration(eta) })}` : ''}`;
       }
     },
   };
@@ -605,7 +606,7 @@ function setBusy(on: boolean): void {
   $('btn-cancel').hidden = !on;
   if (on) {
     $('progress-fill').style.width = '0%';
-    $('progress-text').textContent = 'Preparando';
+    $('progress-text').textContent = t('Preparando');
   }
 }
 
@@ -614,7 +615,7 @@ async function runForecast(base: Candle[], endIdx: number, samples: number, even
   const { family, key } = modelParts();
   const info = modelInfo();
   const look = Math.min(S.lookback, info.maxContext, endIdx);
-  if (look < 32) throw new Error('No hay suficientes velas de contexto (mínimo 32)');
+  if (look < 32) throw new Error(t('No hay suficientes velas de contexto (mínimo 32)'));
   const ctx = base.slice(endIdx - look, endIdx);
   const anchor = ctx[ctx.length - 1]!;
   const times = Array.from({ length: S.horizon }, (_, i) => anchor.t + stepMs * (i + 1));
@@ -624,7 +625,7 @@ async function runForecast(base: Candle[], endIdx: number, samples: number, even
     const params = { predLen: S.horizon, samples, batch: Math.min(S.batch, samples), temperature: S.temperature, topK: S.topK, topP: S.topP, seed, fastWindow: S.fastWindow };
     const { result, ms } = await engine.kronos(key, ctx, times, params, events);
     inMemory.add(S.model);
-    return { ...common, ...fromKronos(result, times, anchor), ms, settings: { contexto: look, horizonte: S.horizon, trayectorias: samples, temperatura: S.temperature, top_p: S.topP, top_k: S.topK, semilla: seed, ...(look + S.horizon > info.maxContext ? { ventana: S.fastWindow ? 'rápida' : 'exacta' } : {}) } };
+    return { ...common, ...fromKronos(result, times, anchor), ms, settings: { contexto: look, horizonte: S.horizon, trayectorias: samples, temperatura: S.temperature, top_p: S.topP, top_k: S.topK, semilla: seed, ...(look + S.horizon > info.maxContext ? { ventana: S.fastWindow ? t('rápida') : t('exacta') } : {}) } };
   }
   const { result, ms } = await engine.chronos(key, ctx.map((c) => c.c), S.horizon, events);
   inMemory.add(S.model);
@@ -637,8 +638,8 @@ async function withFallback<T>(job: () => Promise<T>): Promise<T> {
     return await job();
   } catch (e) {
     if (e instanceof CancelError || engine.backend !== 'webgpu' || S.backend !== 'auto') throw e;
-    log(`WebGPU falló (${(e as Error).message}). Se reintenta en CPU.`);
-    notice('WebGPU dio un error en este equipo; se ha cambiado al motor de CPU, más lento.');
+    log(t('WebGPU falló ({e}). Se reintenta en CPU.', { e: (e as Error).message }));
+    notice(t('WebGPU dio un error en este equipo; se ha cambiado al motor de CPU, más lento.'));
     await bootEngine('wasm');
     return job();
   }
@@ -653,7 +654,7 @@ async function predict(): Promise<void> {
       await loadData(S.lookback + S.offset + S.horizon + 50);
       if (contextBase().length - S.offset >= 32) return predict();
     }
-    notice('No hay suficientes velas para esa combinación de contexto y «velas atrás».');
+    notice(t('No hay suficientes velas para esa combinación de contexto y «velas atrás».'));
     return;
   }
   setBusy(true);
@@ -663,10 +664,10 @@ async function predict(): Promise<void> {
     current = f;
     chart.setForecast(current, pinned);
     chart.focus();
-    log(`${f.label}: ${f.times.length} velas${f.samples ? ` × ${f.samples} trayectorias` : ''} en ${fmtDuration(f.ms)}`);
+    log(`${f.label}: ${t('{n} velas', { n: f.times.length })}${f.samples ? ` × ${t('{n} trayectorias', { n: f.samples })}` : ''} ${t('en {d}', { d: fmtDuration(f.ms) })}`);
     renderAll();
   } catch (e) {
-    if (e instanceof CancelError) log('Predicción cancelada');
+    if (e instanceof CancelError) log(t('Predicción cancelada'));
     else {
       notice(`La predicción falló: ${(e as Error).message}`);
       log(`Error: ${(e as Error).message}`);
@@ -685,10 +686,10 @@ async function runBacktest(): Promise<void> {
   const base = contextBase();
   const windows = Math.min(S.btWindows, Math.floor((base.length - S.horizon - 32) / stride) + 1);
   if (windows < 1) {
-    notice('No hay suficiente histórico para el backtest.');
+    notice(t('No hay suficiente histórico para el backtest.'));
     return;
   }
-  if (windows < S.btWindows) log(`Histórico insuficiente: backtest con ${windows} ventanas en lugar de ${S.btWindows}`);
+  if (windows < S.btWindows) log(t('Histórico insuficiente: backtest con {n} ventanas en lugar de {m}', { n: windows, m: S.btWindows }));
   selectTab('backtest');
   setBusy(true);
   notice(null);
@@ -698,14 +699,14 @@ async function runBacktest(): Promise<void> {
   try {
     for (let w = 0; w < windows; w++) {
       const endIdx = base.length - S.horizon - (windows - 1 - w) * stride;
-      const f = await withFallback(() => runForecast(base, endIdx, S.btSamples, progressEvents(`Ventana ${w + 1} de ${windows} · `)));
+      const f = await withFallback(() => runForecast(base, endIdx, S.btSamples, progressEvents(`${t('Ventana {a} de {b}', { a: w + 1, b: windows })} · `)));
       const sc = score(f, actual);
       if (sc) run.rows.push({ forecast: f, score: sc });
       renderBacktest();
     }
-    log(`Backtest de ${run.model}: ${run.rows.length} ventanas`);
+    log(t('Backtest de {m}: {n} ventanas', { m: run.model, n: run.rows.length }));
   } catch (e) {
-    if (e instanceof CancelError) log('Backtest cancelado');
+    if (e instanceof CancelError) log(t('Backtest cancelado'));
     else {
       notice(`El backtest falló: ${(e as Error).message}`);
       log(`Error: ${(e as Error).message}`);
@@ -739,16 +740,16 @@ function renderLegend(): void {
   const items: HTMLElement[] = [];
   const f = current;
   if (f) {
-    if (S.median) items.push(h('span', {}, h('i', { class: 'line', style: 'border-color: var(--accent)' }), 'Mediana'));
+    if (S.median) items.push(h('span', {}, h('i', { class: 'line', style: 'border-color: var(--accent)' }), t('Mediana')));
     if (S.bands) {
       items.push(h('span', {}, h('i', { style: 'background: var(--accent); opacity: .22' }), `${pct(f.levels[f.outer.lo]!)}–${pct(f.levels[f.outer.hi]!)}`));
       items.push(h('span', {}, h('i', { style: 'background: var(--accent); opacity: .45' }), `${pct(f.levels[f.inner.lo]!)}–${pct(f.levels[f.inner.hi]!)}`));
     }
-    if (S.meanCandles && f.mean) items.push(h('span', {}, h('i', { class: 'hollow', style: 'border-color: var(--up)' }), 'Velas previstas'));
-    if (S.paths && f.paths) items.push(h('span', {}, h('i', { class: 'line', style: 'border-color: var(--accent); opacity: .5; border-top-width: 1px' }), 'Trayectorias'));
+    if (S.meanCandles && f.mean) items.push(h('span', {}, h('i', { class: 'hollow', style: 'border-color: var(--up)' }), t('Velas previstas')));
+    if (S.paths && f.paths) items.push(h('span', {}, h('i', { class: 'line', style: 'border-color: var(--accent); opacity: .5; border-top-width: 1px' }), t('Trayectorias')));
   }
-  for (const p of pinned) items.push(h('span', {}, h('i', { class: 'dash', style: `border-color: ${p.color}` }), `Fijada · ${p.forecast.label}`));
-  if (!items.length) items.push(h('span', { class: 'muted' }, 'Sin predicción'));
+  for (const p of pinned) items.push(h('span', {}, h('i', { class: 'dash', style: `border-color: ${p.color}` }), `${t('Fijada')} · ${p.forecast.label}`));
+  if (!items.length) items.push(h('span', { class: 'muted' }, t('Sin predicción')));
   el.replaceChildren(...items);
 }
 
@@ -765,7 +766,7 @@ const mark = (ok: boolean | null, text: string): HTMLElement =>
 const empty = (name: IconName, text: string): HTMLElement => h('div', { class: 'empty' }, h('div', { class: 'bubble' }, icon(name, 22)), h('div', {}, text));
 
 function probText(p: number, bound: string): string {
-  return `${bound === '<' ? 'menos del ' : bound === '>' ? 'más del ' : ''}${fmtNum(p * 100)} %`;
+  return t(bound === '<' ? 'menos del {p} %' : bound === '>' ? 'más del {p} %' : '{p} %', { p: fmtNum(p * 100) });
 }
 
 function renderSummary(): void {
@@ -773,7 +774,7 @@ function renderSummary(): void {
   const f = current;
   if (!f) {
     el.replaceChildren(
-      empty('chart', 'Pulsa «Predecir» para generar una predicción. La primera vez se descarga el modelo y se guarda en la caché del navegador; después funciona sin volver a descargarlo.'),
+      empty('chart', t('Pulsa «Predecir» para generar una predicción. La primera vez se descarga el modelo y se guarda en la caché del navegador; después funciona sin volver a descargarlo.')),
     );
     return;
   }
@@ -782,41 +783,41 @@ function renderSummary(): void {
   const tiles: HTMLElement[] = [];
   if (s.expectedHigh !== undefined) {
     tiles.push(
-      tile('Máximo esperado', fmtPrice(s.expectedHigh), fmtPct(s.medianRunupPct!)),
-      tile('Mínimo esperado', fmtPrice(s.expectedLow!), fmtPct(s.medianDrawdownPct!)),
-      tile('Dispersión final', `± ${fmtNum(s.endStdPct!, 2)} %`, 'entre trayectorias'),
+      tile(t('Máximo esperado'), fmtPrice(s.expectedHigh), fmtPct(s.medianRunupPct!)),
+      tile(t('Mínimo esperado'), fmtPrice(s.expectedLow!), fmtPct(s.medianDrawdownPct!)),
+      tile(t('Dispersión final'), `± ${fmtNum(s.endStdPct!, 2)} %`, t('entre trayectorias')),
     );
   }
-  tiles.push(tile('Cálculo', fmtDuration(f.ms), `${f.label} · ${engine.backend === 'webgpu' ? 'WebGPU' : 'CPU'}`));
+  tiles.push(tile(t('Cálculo'), fmtDuration(f.ms), `${f.label} · ${engine.backend === 'webgpu' ? 'WebGPU' : 'CPU'}`));
   const parts: HTMLElement[] = [hero(f, s, end), h('div', { class: 'tiles compact animate' }, ...tiles)];
 
   const sc = score(f, new Map(all.map((c) => [c.t, c])));
   // Only closed candles count as "what happened".
   const closedScore = sc && f.times[0]! + stepMs <= Date.now() ? sc : null;
   if (closedScore) {
-    parts.push(h('div', { class: 'section-title' }, `Comparación con lo ocurrido (${closedScore.steps} de ${f.times.length} velas)`));
+    parts.push(h('div', { class: 'section-title' }, t('Comparación con lo ocurrido ({a} de {b} velas)', { a: closedScore.steps, b: f.times.length })));
     parts.push(h('div', { class: 'tiles animate' }, ...scoreTiles(closedScore)));
   }
 
   const input = h('input', { type: 'number', class: 'input', step: 'any', value: S.target > 0 ? String(S.target) : '', placeholder: fmtPrice(s.endHi), id: 'target' });
   const out = h('span', {});
   const update = () => {
-    const t = Number(input.value);
-    S.target = t > 0 ? t : 0;
+    const target = Number(input.value);
+    S.target = target > 0 ? target : 0;
     saveSettings(S);
-    if (!(t > 0)) {
+    if (!(target > 0)) {
       out.textContent = '';
       return;
     }
-    const o = targetOdds(f, t);
-    const dir = o.above ? 'por encima' : 'por debajo';
-    out.textContent = `${o.touch !== undefined ? `Lo toca en algún momento: ${fmtNum(o.touch * 100)} %. ` : ''}Cierra ${dir} al final: ${probText(o.endBeyond, o.bound)}.`;
+    const o = targetOdds(f, target);
+    const touch = o.touch !== undefined ? `${t('Lo toca en algún momento: {p} %.', { p: fmtNum(o.touch * 100) })} ` : '';
+    out.textContent = touch + t(o.above ? 'Cierra por encima al final: {p}.' : 'Cierra por debajo al final: {p}.', { p: probText(o.endBeyond, o.bound) });
   };
   input.addEventListener('input', update);
-  parts.push(h('div', { class: 'inline-form card' }, h('label', { for: 'target' }, 'Precio objetivo'), input, out));
+  parts.push(h('div', { class: 'inline-form card' }, h('label', { for: 'target' }, t('Precio objetivo')), input, out));
   update();
   parts.push(
-    h('div', { class: 'meta-line' }, Object.entries(f.settings).map(([k, v]) => `${k}: ${v}`).join(' · ')),
+    h('div', { class: 'meta-line' }, Object.entries(f.settings).map(([k, v]) => `${t(k)}: ${v}`).join(' · ')),
   );
   el.replaceChildren(...parts);
 }
@@ -824,7 +825,7 @@ function renderSummary(): void {
 /** Headline card: where the median ends, the odds of going up and the spread of outcomes. */
 function hero(f: Forecast, s: ReturnType<typeof summarize>, end: number): HTMLElement {
   const up = Math.round(s.pUp * 100);
-  const bound = s.pUpBound === '<' ? 'menos del ' : s.pUpBound === '>' ? 'más del ' : '';
+  const sub = s.pUpBound === '<' ? 'Sube menos del {p} %' : s.pUpBound === '>' ? 'Sube más del {p} %' : 'Sube {p} %';
   const lo = Math.min(s.endLo, s.last);
   const hi = Math.max(s.endHi, s.last);
   const pad = (hi - lo) * 0.08 || hi * 0.001;
@@ -836,9 +837,9 @@ function hero(f: Forecast, s: ReturnType<typeof summarize>, end: number): HTMLEl
     h(
       'div',
       { class: 'hero-main' },
-      h('div', { class: 'k' }, `Precio previsto · ${fmtTime(end, S.localTime)}`),
+      h('div', { class: 'k' }, `${t('Precio previsto')} · ${fmtTime(end, S.localTime)}`),
       h('div', { class: 'hero-v' }, fmtPrice(s.endMedian)),
-      h('div', { class: 's' }, delta(s.changePct), h('span', {}, `desde ${fmtPrice(s.last)} · ${fmtTime(f.anchor.t, S.localTime)}`)),
+      h('div', { class: 's' }, delta(s.changePct), h('span', {}, `${t('desde {p}', { p: fmtPrice(s.last) })} · ${fmtTime(f.anchor.t, S.localTime)}`)),
     ),
     h(
       'div',
@@ -846,25 +847,25 @@ function hero(f: Forecast, s: ReturnType<typeof summarize>, end: number): HTMLEl
       h(
         'div',
         { class: 'meter' },
-        h('div', { class: 'meter-head' }, h('span', {}, '¿Acaba más arriba que al inicio?')),
+        h('div', { class: 'meter-head' }, h('span', {}, t('¿Acaba más arriba que al inicio?'))),
         h('div', { class: 'odds' }, h('span', { class: 'odds-up', style: `width:${up}%` }), h('span', { class: 'odds-down' })),
         h(
           'div',
           { class: 'meter-foot' },
-          h('span', { class: 'up' }, icon('arrowUp', 13), `Sube ${bound}${up} %`),
-          h('span', { class: 'down' }, `Baja ${100 - up} %`, icon('arrowDown', 13)),
+          h('span', { class: 'up' }, icon('arrowUp', 13), t(sub, { p: up })),
+          h('span', { class: 'down' }, t('Baja {p} %', { p: 100 - up }), icon('arrowDown', 13)),
         ),
       ),
       h(
         'div',
         { class: 'meter' },
-        h('div', { class: 'meter-head' }, h('span', {}, `Rango ${pct(s.loLevel)}–${pct(s.hiLevel)} al final`), h('b', {}, `${fmtPct((s.endLo / s.last - 1) * 100, 1)} / ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`)),
+        h('div', { class: 'meter-head' }, h('span', {}, t('Rango {a}–{b} al final', { a: pct(s.loLevel), b: pct(s.hiLevel) })), h('b', {}, `${fmtPct((s.endLo / s.last - 1) * 100, 1)} / ${fmtPct((s.endHi / s.last - 1) * 100, 1)}`)),
         h(
           'div',
           { class: 'range' },
           h('span', { class: 'range-band', style: `left:${at(s.endLo)};right:calc(100% - ${at(s.endHi)})` }),
-          h('span', { class: 'range-now', style: `left:${at(s.last)}`, title: fromNow ? 'Precio actual' : 'Inicio de la predicción' }),
-          h('span', { class: 'range-mid', style: `left:${at(s.endMedian)}`, title: 'Mediana' }),
+          h('span', { class: 'range-now', style: `left:${at(s.last)}`, title: fromNow ? t('Precio actual') : t('Inicio de la predicción') }),
+          h('span', { class: 'range-mid', style: `left:${at(s.endMedian)}`, title: t('Mediana') }),
         ),
         h(
           'div',
@@ -881,10 +882,10 @@ function hero(f: Forecast, s: ReturnType<typeof summarize>, end: number): HTMLEl
 
 function scoreTiles(sc: Score): HTMLElement[] {
   return [
-    tile('Error medio (MAPE)', `${fmtNum(sc.mapePct, 2)} %`, `MAE ${fmtPrice(sc.mae)}`),
-    tile('Habilidad frente a «no se mueve»', fmtPct(sc.skill * 100, 0), sc.skill > 0 ? 'mejor que el precio constante' : 'peor que el precio constante'),
-    tile('Dirección', mark(sc.directionHit, sc.directionHit ? 'Acertada' : 'Fallada'), `previsto ${fmtPct(sc.predictedReturnPct)} · real ${fmtPct(sc.actualReturnPct)}`),
-    tile('Cierres dentro de la banda', `${fmtNum(sc.coverage * 100)} %`, 'lo esperable es un 80 %'),
+    tile(t('Error medio (MAPE)'), `${fmtNum(sc.mapePct, 2)} %`, `MAE ${fmtPrice(sc.mae)}`),
+    tile(t('Habilidad frente a «no se mueve»'), fmtPct(sc.skill * 100, 0), sc.skill > 0 ? t('mejor que el precio constante') : t('peor que el precio constante')),
+    tile(t('Dirección'), mark(sc.directionHit, sc.directionHit ? t('Acertada') : t('Fallada')), t('previsto {a} · real {b}', { a: fmtPct(sc.predictedReturnPct), b: fmtPct(sc.actualReturnPct) })),
+    tile(t('Cierres dentro de la banda'), `${fmtNum(sc.coverage * 100)} %`, t('lo esperable es un 80 %')),
   ];
 }
 
@@ -893,7 +894,7 @@ function renderBacktest(): void {
   const bt = backtest;
   if (!bt || !bt.rows.length) {
     el.replaceChildren(
-      empty('history', bt?.running ? 'Ejecutando la primera ventana' : 'Aún no hay backtest. Configúralo en el panel «Backtest» y pulsa «Ejecutar backtest».'),
+      empty('history', bt?.running ? t('Ejecutando la primera ventana') : t('Aún no hay backtest. Configúralo en el panel «Backtest» y pulsa «Ejecutar backtest».')),
     );
     return;
   }
@@ -908,36 +909,36 @@ function renderBacktest(): void {
   const tiles = h(
     'div',
     { class: 'tiles' },
-    tile('Ventanas', bt.running ? `${n} en curso` : `${n}`, bt.model),
-    tile('Error medio (MAPE)', `${fmtNum(sum((s) => s.mapePct) / n, 2)} %`),
-    tile('Habilidad frente a «no se mueve»', fmtPct(skill * 100, 0), skill > 0 ? 'mejor que el precio constante' : 'no mejora al precio constante'),
-    tile('Dirección acertada', judged.length ? `${hits} de ${judged.length}` : '—', judged.length ? `${fmtNum((hits / judged.length) * 100)} %; al azar sería el 50 %` : undefined),
-    tile('Cierres dentro de la banda', `${fmtNum((sum((s) => s.coverage) / n) * 100)} %`, 'lo esperable es un 80 %'),
-    tile('Seguir la señal', delta(compounded), 'rentabilidad compuesta, sin comisiones'),
+    tile(t('Ventanas'), bt.running ? `${n} en curso` : `${n}`, bt.model),
+    tile(t('Error medio (MAPE)'), `${fmtNum(sum((s) => s.mapePct) / n, 2)} %`),
+    tile(t('Habilidad frente a «no se mueve»'), fmtPct(skill * 100, 0), skill > 0 ? t('mejor que el precio constante') : t('no mejora al precio constante')),
+    tile(t('Dirección acertada'), judged.length ? t('{a} de {b}', { a: hits, b: judged.length }) : '—', judged.length ? t('{p} %; al azar sería el 50 %', { p: fmtNum((hits / judged.length) * 100) }) : undefined),
+    tile(t('Cierres dentro de la banda'), `${fmtNum((sum((s) => s.coverage) / n) * 100)} %`, t('lo esperable es un 80 %')),
+    tile(t('Seguir la señal'), delta(compounded), t('rentabilidad compuesta, sin comisiones')),
   );
   const rows = bt.rows.map((r) => {
     const s = r.score;
     return h(
       'tr',
-      { class: 'clickable', title: 'Ver esta ventana en el gráfico', onclick: () => showForecast(r.forecast) },
+      { class: 'clickable', title: t('Ver esta ventana en el gráfico'), onclick: () => showForecast(r.forecast) },
       h('td', {}, fmtTime(r.forecast.anchor.t, S.localTime, true)),
       h('td', {}, fmtPct(s.predictedReturnPct)),
       h('td', {}, fmtPct(s.actualReturnPct)),
-      h('td', {}, mark(s.directionHit, s.directionHit ? 'Sí' : 'No')),
+      h('td', {}, mark(s.directionHit, s.directionHit ? t('Sí') : t('No'))),
       h('td', {}, `${fmtNum(s.mapePct, 2)} %`),
       h('td', {}, fmtPct(s.skill * 100, 0)),
       h('td', {}, `${fmtNum(s.coverage * 100)} %`),
     );
   });
-  const head = ['Inicio', 'Previsto', 'Real', 'Dirección', 'MAPE', 'Habilidad', 'En banda'].map((t) => h('th', {}, t));
+  const head = [t('Inicio'), t('Previsto'), t('Real'), t('Dirección'), 'MAPE', t('Habilidad'), t('En banda')].map((x) => h('th', {}, x));
   el.replaceChildren(
     tiles,
-    h('div', { class: 'section-title' }, 'Por ventana (pulsa una fila para verla en el gráfico)'),
+    h('div', { class: 'section-title' }, t('Por ventana (pulsa una fila para verla en el gráfico)')),
     h('div', { class: 'table-wrap card' }, h('table', {}, h('thead', {}, h('tr', {}, ...head)), h('tbody', {}, ...rows))),
     h(
       'div',
       { class: 'hint', style: 'margin-top:8px' },
-      'Pocas ventanas dicen poco: con menos de 30 las diferencias suelen ser ruido. «Previsto» y «Real» son la variación entre el último cierre del contexto y el final del horizonte.',
+      t('Pocas ventanas dicen poco: con menos de 30 las diferencias suelen ser ruido. «Previsto» y «Real» son la variación entre el último cierre del contexto y el final del horizonte.'),
     ),
   );
 }
@@ -966,11 +967,11 @@ function renderTable(): void {
   const el = $('tab-table');
   const f = current;
   if (!f) {
-    el.replaceChildren(empty('chart', 'Sin predicción todavía.'));
+    el.replaceChildren(empty('chart', t('Sin predicción todavía.')));
     return;
   }
   const actual = new Map(all.map((c) => [c.t, c]));
-  const head = ['Vela', pct(f.levels[f.outer.lo]!), 'Mediana', pct(f.levels[f.outer.hi]!), 'Variación', ...(f.mean ? ['Volumen medio'] : []), 'Real'];
+  const head = [t('Vela'), pct(f.levels[f.outer.lo]!), t('Mediana'), pct(f.levels[f.outer.hi]!), t('Variación'), ...(f.mean ? [t('Volumen medio')] : []), t('Real')];
   const body = f.times.map((t, i) => {
     const med = f.q[f.median]![i]!;
     const real = actual.get(t);
@@ -986,7 +987,7 @@ function renderTable(): void {
       h('td', {}, real ? fmtPrice(real.c) : '—'),
     );
   });
-  el.replaceChildren(h('div', { class: 'table-wrap card' }, h('table', {}, h('thead', {}, h('tr', {}, ...head.map((t) => h('th', {}, t)))), h('tbody', {}, ...body))));
+  el.replaceChildren(h('div', { class: 'table-wrap card' }, h('table', {}, h('thead', {}, h('tr', {}, ...head.map((x) => h('th', {}, x)))), h('tbody', {}, ...body))));
 }
 
 async function renderModels(): Promise<void> {
@@ -999,14 +1000,14 @@ async function renderModels(): Promise<void> {
       const cached = (await Promise.all(info.files.map(isCached))).every(Boolean);
       const size = info.files.reduce((a, f) => a + f.bytes, 0);
       const state = inMemory.has(id) ? 'mem' : cached ? 'cached' : 'none';
-      const status = h('span', { class: `pill ${state}` }, state === 'mem' ? 'En memoria' : state === 'cached' ? 'Descargado' : 'Sin descargar');
-      const get = h('button', { class: 'btn small', hidden: cached }, icon('download', 14), 'Descargar');
+      const status = h('span', { class: `pill ${state}` }, state === 'mem' ? t('En memoria') : state === 'cached' ? t('Descargado') : t('Sin descargar'));
+      const get = h('button', { class: 'btn small', hidden: cached }, icon('download', 14), t('Descargar'));
       get.addEventListener('click', async () => {
         get.disabled = true;
         try {
           let before = 0;
           for (const f of info.files) {
-            await fetchModel(f, (loaded) => (status.textContent = `Descargando ${fmtBytes(before + loaded)} de ${fmtBytes(size)}`));
+            await fetchModel(f, (loaded) => (status.textContent = t('Descargando {a} de {b}', { a: fmtBytes(before + loaded), b: fmtBytes(size) })));
             before += f.bytes;
           }
         } catch (e) {
@@ -1014,14 +1015,14 @@ async function renderModels(): Promise<void> {
         }
         void renderModels();
       });
-      const del = h('button', { class: 'btn small ghost icon-sm', hidden: !cached, title: 'Borrar de la caché', 'aria-label': 'Borrar' }, icon('trash', 14));
+      const del = h('button', { class: 'btn small ghost icon-sm', hidden: !cached, title: t('Borrar de la caché'), 'aria-label': t('Borrar') }, icon('trash', 14));
       del.addEventListener('click', async () => {
         // Tokenizers are shared between Kronos sizes; only drop files no other cached model needs.
         const others = (await Promise.all(ids.filter((o) => o !== id).map(async (o) => ((await Promise.all(modelInfo(o).files.slice(-2).map(isCached))).every(Boolean) ? modelInfo(o).files : [])))).flat();
         await removeCached(info.files.filter((f) => !others.some((o) => o.file === f.file)));
         void renderModels();
       });
-      const use = h('button', { class: 'btn small', disabled: S.model === id }, S.model === id ? 'En uso' : 'Usar');
+      const use = h('button', { class: 'btn small', disabled: S.model === id }, S.model === id ? t('En uso') : t('Usar'));
       use.addEventListener('click', () => {
         S.model = id;
         setSelect('model', id);
@@ -1032,7 +1033,7 @@ async function renderModels(): Promise<void> {
         'div',
         { class: `model-row card${S.model === id ? ' current' : ''}` },
         h('div', { class: 'avatar' }, icon(id.startsWith('chronos') ? 'activity' : 'cpu', 18)),
-        h('div', { class: 'model-info' }, h('div', { class: 'name' }, info.label), h('div', { class: 'meta' }, `${info.params} parámetros · ${fmtBytes(size)} · contexto ${info.maxContext}`), status),
+        h('div', { class: 'model-info' }, h('div', { class: 'name' }, info.label), h('div', { class: 'meta' }, t('{p} parámetros · {s} · contexto {n}', { p: info.params, s: fmtBytes(size), n: info.maxContext })), status),
         h('div', { class: 'btns' }, use, get, del),
       );
     }),
@@ -1040,11 +1041,11 @@ async function renderModels(): Promise<void> {
   let usage = '';
   try {
     const est = await navigator.storage?.estimate();
-    if (est?.usage !== undefined && est.quota) usage = `Almacenamiento del sitio: ${fmtBytes(est.usage)} usados de ${fmtBytes(est.quota)} disponibles.`;
+    if (est?.usage !== undefined && est.quota) usage = t('Almacenamiento del sitio: {a} usados de {b} disponibles.', { a: fmtBytes(est.usage), b: fmtBytes(est.quota) });
   } catch {
     /* not available */
   }
-  el.replaceChildren(h('div', { class: 'models' }, ...rows), h('div', { class: 'hint', style: 'margin-top:8px' }, `${usage} Los modelos se guardan en este navegador y no se vuelven a descargar.`));
+  el.replaceChildren(h('div', { class: 'models' }, ...rows), h('div', { class: 'hint', style: 'margin-top:8px' }, `${usage} ${t('Los modelos se guardan en este navegador y no se vuelven a descargar.')}`));
 }
 
 // ---------------------------------------------------------------- actions
@@ -1116,7 +1117,7 @@ function wireActions(): void {
     current = null;
     chart.setForecast(null, pinned);
     renderAll();
-    toast('Predicción fijada. Lanza otra para compararlas.');
+    toast(t('Predicción fijada. Lanza otra para compararlas.'));
   });
   $('btn-clear').addEventListener('click', () => {
     current = null;
@@ -1148,9 +1149,9 @@ function wireActions(): void {
     const url = shareUrl(S);
     try {
       await navigator.clipboard.writeText(url);
-      toast('Enlace copiado');
+      toast(t('Enlace copiado'));
     } catch {
-      prompt('Copia este enlace', url);
+      prompt(t('Copia este enlace'), url);
     }
   });
   $('btn-theme').addEventListener('click', () => {
@@ -1185,7 +1186,7 @@ async function main(): Promise<void> {
     selectTab('summary');
     updateTabFade();
   });
-  log(`Kronos WebGPU · aislamiento de origen: ${crossOriginIsolated ? 'sí' : 'no'} · núcleos: ${navigator.hardwareConcurrency ?? '?'}`);
+  log(t('Kronos WebGPU · aislamiento de origen: {i} · núcleos: {n}', { i: crossOriginIsolated ? t('sí') : t('no'), n: navigator.hardwareConcurrency ?? '?' }));
   const data = loadData();
   try {
     manifest = await loadManifest();
@@ -1193,7 +1194,7 @@ async function main(): Promise<void> {
     saveSettings(S);
     void pruneCache(manifest);
     void navigator.storage?.persist?.().catch(() => {});
-    log(`Catálogo: ${allFiles(manifest).length} archivos de modelo`);
+    log(t('Catálogo: {n} archivos de modelo', { n: allFiles(manifest).length }));
     await startEngine();
   } catch (e) {
     notice((e as Error).message);

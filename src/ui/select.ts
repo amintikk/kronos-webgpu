@@ -1,3 +1,4 @@
+import { t } from '../i18n.ts';
 import { h } from './dom.ts';
 import { icon } from './icons.ts';
 
@@ -38,7 +39,7 @@ class Menu {
         ? items.map((it, i) =>
             h('div', { class: 'pop-item', role: 'option', 'data-index': i, 'aria-selected': String(it.value === selected) }, h('span', {}, it.label), it.value === selected ? icon('check', 15) : null),
           )
-        : [h('div', { class: 'pop-empty' }, 'Sin resultados')]),
+        : [h('div', { class: 'pop-empty' }, t('Sin resultados'))]),
     );
     this.paintActive(false);
     if (this.isOpen) this.place();

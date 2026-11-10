@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Licenses · Kronos WebGPU</title>
+    <meta name="description" content="License of the Kronos WebGPU code and of the third-party models, libraries and fonts it uses." />
+    <link rel="canonical" href="https://kronos.aminox.dev/en/licenses/" />
+    <link rel="alternate" hreflang="es" href="https://kronos.aminox.dev/licencias/" />
+    <link rel="alternate" hreflang="en" href="https://kronos.aminox.dev/en/licenses/" />
+    <link rel="alternate" hreflang="x-default" href="https://kronos.aminox.dev/en/licenses/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <script>
+      // Entrance animations start hidden; if the page script never runs, show everything after 2.5 s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => window.kronosReady || document.documentElement.classList.remove('js'), 2500);
+      try {
+        const t = JSON.parse(localStorage.getItem('kronos-settings') || '{}').theme;
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="site">
+    <!--#header-en-->
+    <main class="doc">
+      <div class="wrap narrow">
+        <h1>Licenses</h1>
+        <p class="updated">Last updated: 10 November 2026</p>
+
+        <p>Kronos WebGPU builds on other people’s open work. This is what it includes and under which license.</p>
+        <h2>This project</h2>
+        <p>Kronos WebGPU code © 2026 Amin Tahtah Toumi, under the <a href="https://github.com/amintikk/kronos-webgpu/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a>. Repository: <a href="https://github.com/amintikk/kronos-webgpu" target="_blank" rel="noopener">github.com/amintikk/kronos-webgpu</a>.</p>
+        <h2>Third-party models and components</h2>
+        <div class="card table-card">
+          <table>
+            <thead><tr><th>Component</th><th>Authors</th><th>License</th><th>Used for</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://github.com/shiyu-coder/Kronos" target="_blank" rel="noopener">Kronos</a> (code and the mini, small and base weights and tokenizers)</td><td>Yu Shi, Zongliang Fu, Shuo Chen, Bohan Zhao, Wei Xu, Changshui Zhang and Jian Li</td><td>MIT</td><td>Models converted to ONNX</td></tr>
+              <tr><td><a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">Chronos-Bolt</a> (tiny and small)</td><td>Amazon</td><td>Apache-2.0</td><td>Models converted to ONNX</td></tr>
+              <tr><td><a href="https://github.com/microsoft/onnxruntime" target="_blank" rel="noopener">ONNX Runtime Web</a></td><td>Microsoft</td><td>MIT</td><td>In-browser inference engine</td></tr>
+              <tr><td><a href="https://rsms.me/inter/" target="_blank" rel="noopener">Inter</a></td><td>Rasmus Andersson</td><td>SIL Open Font License 1.1</td><td>Typeface</td></tr>
+              <tr><td><a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a></td><td>Lucide contributors</td><td>ISC</td><td>Icon paths</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The model weights were converted to ONNX without retraining; the conversion scripts are in the repository. Kronos is described in Shi et al., “Kronos: A Foundation Model for the Language
+          of Financial Markets”, <a href="https://arxiv.org/abs/2508.02739" target="_blank" rel="noopener">arXiv:2508.02739</a>.
+        </p>
+        <h2>Market data</h2>
+        <p>Candles come from the public APIs of Binance, Bybit, OKX and Coinbase, queried by your browser. That data belongs to its providers and is subject to their terms of use.</p>
+      </div>
+    </main>
+    <!--#footer-en-->
+    <script type="module" src="/src/site/site.ts"></script>
+  </body>
+</html>
