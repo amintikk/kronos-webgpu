@@ -23,10 +23,8 @@ html {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
-  backdrop-filter: saturate(160%) blur(14px);
-  -webkit-backdrop-filter: saturate(160%) blur(14px);
-  border-bottom: 1px solid transparent;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 .site-top-inner {
   display: flex;

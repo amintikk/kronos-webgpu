@@ -174,9 +174,8 @@ table,
   justify-content: space-between;
   gap: 12px;
   padding: 12px 20px;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: saturate(160%) blur(14px);
-  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 .brand {
   color: inherit;
