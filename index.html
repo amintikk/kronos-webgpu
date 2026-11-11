@@ -157,8 +157,8 @@
               <div class="fig-head"><span>Fichas que procesa el transformer</span><b data-fig="work-ratio"></b></div>
               <div class="fig-frame" id="fig-work"></div>
               <figcaption>
-                Para la predicción de arriba: 400 velas de contexto, 48 velas previstas y 32 trayectorias. El original vuelve a leer todo el contexto en cada vela y en cada trayectoria; aquí se lee una
-                vez y cada paso añade una sola ficha. Cuenta trabajo, no tiempo: el tiempo real depende del equipo.
+                Para la predicción de arriba: 400 velas de contexto, 48 velas previstas y 32 trayectorias. Es el mismo cálculo que el original, pero el contexto se procesa una sola vez y cada paso añade una
+                ficha nueva en lugar de repetirlo todo. El resultado es el mismo: la cifra cuenta trabajo, no calidad ni tiempo, y el tiempo real depende del equipo.
               </figcaption>
             </figure>
             <dl class="defs">
