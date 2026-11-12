@@ -157,8 +157,7 @@
               <div class="fig-head"><span>Tokens processed by the transformer</span><b data-fig="work-ratio"></b></div>
               <div class="fig-frame" id="fig-work"></div>
               <figcaption>
-                For the forecast above: 400 context candles, 48 forecast candles and 32 paths. It is the same computation as the original, but the context is processed once and each step adds one new
-                token instead of repeating everything. The result is the same: the figure counts work, not quality or time, and real time depends on the device.
+                For the forecast above: 400 context candles, 48 forecast candles and 32 paths. It is the same computation as the original, but the context is processed once, as long as it fits the model's window, and each step adds only one new token instead of repeating everything. When the context fills the window, the cache is rebuilt and the savings shrink. Without randomness, the result is the same. The figure counts work, not quality or time, and real time depends on the device.
               </figcaption>
             </figure>
             <dl class="defs">
