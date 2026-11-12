@@ -260,7 +260,7 @@ export function workFigure(host: HTMLElement, d: DemoData): void {
     host.prepend(s);
   });
   const ratio = document.querySelector<HTMLElement>('[data-fig="work-ratio"]');
-  if (ratio) ratio.textContent = t('{n} veces menos', { n: Math.round(upstream / ours) });
+  if (ratio) ratio.textContent = t('{n} veces menos cálculo', { n: Math.round(upstream / ours) });
 }
 
 // ------------------------------------------------------------ 4. backtest

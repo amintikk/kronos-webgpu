@@ -155,12 +155,12 @@
         <div class="wrap block-grid">
           <h2>Cómo está hecho</h2>
           <div class="block-body">
-            <p class="intro">Kronos está pensado para ejecutarse con Python y PyTorch en un servidor. Para que funcione en un navegador hubo que rehacer la parte que genera las predicciones.</p>
+            <p class="intro">Kronos está pensado para ejecutarse con Python y PyTorch en un servidor. Para que funcione en el navegador, el mismo modelo se exporta a ONNX y se ejecuta con ONNX Runtime Web. Comprobado con tests: sus predicciones coinciden con las del original.</p>
             <figure class="fig">
-              <div class="fig-head"><span>Fichas que procesa el transformer</span><b data-fig="work-ratio"></b></div>
+              <div class="fig-head"><span>Cálculo del transformer, en fichas</span><b data-fig="work-ratio"></b></div>
               <div class="fig-frame" id="fig-work"></div>
               <figcaption>
-                Para la predicción de arriba: 400 velas de contexto, 48 velas previstas y 32 trayectorias. Es el mismo cálculo que el original, pero el contexto se procesa una sola vez, mientras quepa en la ventana del modelo, y cada paso añade solo una ficha nueva en lugar de repetirlo todo. Cuando el contexto llena la ventana, la caché se reconstruye y el ahorro se reduce. Sin azar, el resultado es el mismo. La cifra cuenta trabajo, no calidad ni tiempo, y el tiempo real depende del equipo.
+                Mismo modelo (Kronos-mini), mismos pesos y mismo resultado para la predicción de arriba: 400 velas de contexto, 48 previstas y 32 trayectorias. Lo que cambia es cómo se calcula. El original vuelve a calcular todo el contexto en cada paso; aquí ese cálculo se guarda y cada paso solo procesa la ficha nueva, como una hoja de cálculo que no vuelve a sumar lo que no ha cambiado. Sin azar, el resultado es el mismo, así que la cifra mide trabajo, no calidad, y el tiempo real depende del equipo. El ahorro se mantiene mientras el contexto quepa en la ventana del modelo; al llenarla, la caché se reconstruye y el ahorro baja.
               </figcaption>
             </figure>
             <dl class="defs">

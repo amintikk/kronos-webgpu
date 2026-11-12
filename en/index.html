@@ -152,12 +152,12 @@
         <div class="wrap block-grid">
           <h2>How it works</h2>
           <div class="block-body">
-            <p class="intro">Kronos is designed to run with Python and PyTorch on a server. Making it work in a browser meant rewriting the part that generates the forecasts.</p>
+            <p class="intro">Kronos is designed to run with Python and PyTorch on a server. To run in a browser, the same model is exported to ONNX and runs on ONNX Runtime Web. Checked with tests: its forecasts match the original's.</p>
             <figure class="fig">
-              <div class="fig-head"><span>Tokens processed by the transformer</span><b data-fig="work-ratio"></b></div>
+              <div class="fig-head"><span>Transformer computation, in tokens</span><b data-fig="work-ratio"></b></div>
               <div class="fig-frame" id="fig-work"></div>
               <figcaption>
-                For the forecast above: 400 context candles, 48 forecast candles and 32 paths. It is the same computation as the original, but the context is processed once, as long as it fits the model's window, and each step adds only one new token instead of repeating everything. When the context fills the window, the cache is rebuilt and the savings shrink. Without randomness, the result is the same. The figure counts work, not quality or time, and real time depends on the device.
+                Same model (Kronos-mini), same weights and same result for the forecast above: 400 context candles, 48 forecast candles and 32 paths. What changes is how the work is done. The original recomputes the whole context at every step; here that computation is stored, and each step only processes the one new token, like a spreadsheet that doesn't re-add what hasn't changed. Without randomness, the result is the same, so the figure measures work, not quality, and real time depends on the device. The saving holds while the context fits the model's window; when it fills, the cache is rebuilt and the saving drops.
               </figcaption>
             </figure>
             <dl class="defs">

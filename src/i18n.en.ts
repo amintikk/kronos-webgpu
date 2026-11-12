@@ -257,7 +257,7 @@ export const EN: Record<string, string> = {
   '1 trayectoria': '1 path',
   'Kronos original': 'Original Kronos',
   'Fichas procesadas para una predicción: {a} en el original frente a {b}': 'Tokens processed for one forecast: {a} in the original versus {b}',
-  '{n} veces menos': '{n} times fewer',
+  '{n} veces menos cálculo': '{n} times less computation',
   'Dentro de la banda del 80 %': 'Inside the 80 % band',
   'Error frente a «no se mueve»': 'Error vs. “no change”',
   '{n} % menor': '{n} % lower',
